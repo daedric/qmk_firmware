@@ -1,7 +1,9 @@
 from collections import defaultdict
-import re
+import itertools
 from dataclasses import dataclass
+import copy
 from enum import Enum
+from typing import Generator
 
 
 class Mode(Enum):
@@ -79,6 +81,70 @@ class Key:
     def is_basic(self, m: Mode):
         kc, _ = self.get_kc(m)
         return isinstance(kc, str)
+
+
+@dataclass
+class Coord:
+    row: int
+    col: int
+
+
+class Layer:
+    def __init__(self, layout: "Layout", rows: list[list[str]]):
+        self.layout: "Layout" = layout
+        self.rows = rows
+        self.max_length = 0
+
+    def set_key(self, coord: Coord, key: str):
+        self.rows[coord.row][coord.col] = key
+        self.max_length = max(self.max_length, len(key))
+
+    def format(self, FMT: str | None):
+        if not FMT:
+            return ",\n".join(", ".join(cols) for cols in self.rows)
+
+        fmt = "{{:^{}}}".format(self.max_length)
+        kcs = [fmt.format(kc) for kc in itertools.chain(*self.rows)]
+        return f"\n// clang-format off\n{FMT.format(*kcs)}\n// clang-format on\n"
+
+
+class Layout:
+    TRNS = "_______"
+
+    def __init__(self, layout, fmt_layout: str):
+        self.format_layout = fmt_layout
+        self.layout_raw = layout
+
+        self.layers: dict[Mode, Layer] = {}
+        self.reference: list[list[str]] = []
+        self.transparent_layer = []
+        self._parse()
+
+    def _parse(self):
+        lines: str = self.layout_raw.split("\n")
+        self.reference = []
+        for line in lines:
+            line = line.lstrip()
+            if line.startswith("//"):
+                continue
+
+            keys = list(filter(None, [kc.strip() for kc in line.split(",")]))
+            if keys:
+                self.reference.append(keys)
+                self.transparent_layer.append([self.TRNS] * len(keys))
+
+    def add_layer(self, m: Mode) -> Layer:
+        l = Layer(self, copy.deepcopy(self.transparent_layer))
+        self.layers[m] = l
+        return l
+
+    def ref_keys(self) -> Generator[tuple[str, Coord], None, None]:
+        for row, cols in enumerate(self.reference):
+            for col, name in enumerate(cols):
+                yield (name, Coord(row=row, col=col))
+
+    def format(self, m: Mode) -> str:
+        return self.layers[m].format(self.format_layout)
 
 
 ergol_keys = {
@@ -214,14 +280,14 @@ class Gen:
 
 
     const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {{
-        {layouts}
+        {layouts},
     }};
 
     """
 
-    def __init__(self, host, layout):
+    def __init__(self, host, layout, layout_fmt):
         self.host = host
-        self.layout = layout
+        self.layout = Layout(layout, layout_fmt)
         self.keys = ergol_keys[self.host]
         self.unicode_to_idx: dict[int, str] = {}
         self.unicode_map: str | None = None
@@ -284,7 +350,7 @@ class Gen:
 
         const key_override_t **key_overrides = (const key_override_t *[]){{
             {override_names},
-            NULL
+            NULL,
         }};
         """
         overrides = []
@@ -325,18 +391,22 @@ class Gen:
                 )
 
     def _gen(self, m: Mode):
-        l = self.layout[:]
-        for n, key in self.keys.items():
+        l = self.layout.add_layer(m)
+        for n, coord in self.layout.ref_keys():
+            key = self.keys.get(n)
+            if not key:
+                if m == Mode.Base:
+                    l.set_key(coord, n)
+                continue
+
             kc, skc = key.get_kc(m)
             final_kc = self._gen_kc(m, n, kc, skc)
-            l = re.sub(f"\\b{n}\\b", final_kc, l)
-        return l
+            l.set_key(coord, final_kc)
 
     def gen(self):
         self._gen_unicode_map()
-        self.layers = []
         for m in Mode:
-            self.layers.append(self._gen(m))
+            self._gen(m)
         self._gen_override()
 
         return self.file_tpl.format(
@@ -344,32 +414,31 @@ class Gen:
             unicode_map=self.unicode_map,
             overrides=self.override_code,
             layouts=",\n".join(
-                f"[{m.name}] = {layout}" for m, layout in zip(Mode, self.layers)
+                f"[{m.name}] = LAYOUT({self.layout.format(m)})" for m in Mode
             ),
         )
 
 
 host = "us"
 
+FMT_LAYOUT = """
+        {}, {}, {}, {}, {}, {}, {},           {}, {}, {}, {}, {}, {}, {},
+        {}, {}, {}, {}, {}, {}, {},           {}, {}, {}, {}, {}, {}, {},
+        {}, {}, {}, {}, {}, {}, {},           {}, {}, {}, {}, {}, {}, {},
+        {}, {}, {}, {}, {}, {},                   {}, {}, {}, {}, {}, {},
+        {}, {}, {}, {}, {},         {},     {},       {}, {}, {}, {}, {},
+                            {}, {}, {},     {}, {}, {}
+"""
 
 LAYOUT = """
- LAYOUT(
-        // clang-format off
         KC_ESC ,  EKC_1 ,  EKC_2 ,  EKC_3 ,  EKC_4 ,  EKC_5 , _______,           _______,  EKC_6 ,  EKC_7,   EKC_8 ,  EKC_9 ,  EKC_0 , QK_BOOT,
         KC_TAB ,  EKC_Q ,  EKC_C ,  EKC_O ,  EKC_P ,  EKC_W , KC_DEL ,           KC_BSPC,  EKC_J ,  EKC_M ,  EKC_D , EKC_DK ,  EKC_Y , _______,
         KC_GRV ,  EKC_A ,  EKC_S ,  EKC_E ,  EKC_N ,  EKC_F , _______,           _______,  EKC_L ,  EKC_R ,  EKC_T ,  EKC_I ,  EKC_U , _______,
         KC_LSFT,  EKC_Z ,  EKC_X , EKC_MNS,  EKC_V ,  EKC_B ,                             EKC_DOT,  EKC_H ,  EKC_G ,EKC_COMM,  EKC_K , KC_RSFT,
         KC_LCTL, _______, KC_LEFT,KC_RIGHT, KC_LGUI,         _______,            _______,           KC_UP , KC_DOWN, _______, _______, _______,
-                                           _______, _______, _______,     _______, KC_ENTER, EKC_SPC
-        // clang-format on
- )
+                                           _______, _______, _______,            _______, KC_ENTER, EKC_SPC
 """
 
 
-g = Gen(host, LAYOUT)
+g = Gen(host, LAYOUT, FMT_LAYOUT)
 print(g.gen())
-
-# print(g.override_code)
-# for l in g.layers:
-#     print(l)
-# print(g.unicode_map)

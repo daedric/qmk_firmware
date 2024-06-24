@@ -114,10 +114,6 @@ const uint32_t PROGMEM unicode_map[] = {
     [EKC_3_DK_shifted] = 8217 /* ’ */, [EKC_3_Sym_base] = 8323 /* ₃ */,    [EKC_3_Sym_shifted] = 179 /* ³ */,  [EKC_4_DK_base] = 162 /* ¢ */,  [EKC_4_Sym_base] = 8324 /* ₄ */,  [EKC_4_Sym_shifted] = 8308 /* ⁴ */, [EKC_5_Sym_base] = 8325 /* ₅ */,     [EKC_5_Sym_shifted] = 8309 /* ⁵ */, [EKC_6_Sym_base] = 8326 /* ₆ */,    [EKC_6_Sym_shifted] = 8310 /* ⁶ */, [EKC_7_Sym_base] = 8327 /* ₇ */,      [EKC_7_Sym_shifted] = 8311 /* ⁷ */, [EKC_8_DK_base] = 167 /* § */,       [EKC_8_Sym_base] = 8328 /* ₈ */,  [EKC_8_Sym_shifted] = 8312 /* ⁸ */, [EKC_9_DK_base] = 182 /* ¶ */,     [EKC_9_Sym_base] = 8329 /* ₉ */,   [EKC_9_Sym_shifted] = 8313 /* ⁹ */, [EKC_0_DK_base] = 176 /* ° */,    [EKC_0_Sym_base] = 8320 /* ₀ */,   [EKC_0_Sym_shifted] = 8304 /* ⁰ */, [EKC_SPC_Base_shifted] = 8239 /*   */
 };
 
-const key_override_t Base_EKC_DK   = ko_make_with_layers(MOD_MASK_SHIFT, OSL(DK), KC_EXLM, (1 << Base));
-const key_override_t Base_EKC_MNS  = ko_make_with_layers(MOD_MASK_SHIFT, KC_MINS, KC_QUES, (1 << Base));
-const key_override_t Base_EKC_DOT  = ko_make_with_layers(MOD_MASK_SHIFT, KC_DOT, KC_COLN, (1 << Base));
-const key_override_t Base_EKC_COMM = ko_make_with_layers(MOD_MASK_SHIFT, KC_COMM, KC_SCLN, (1 << Base));
 const key_override_t Base_EKC_1    = ko_make_with_layers(MOD_MASK_SHIFT, KC_1, UM(EKC_1_Base_shifted), (1 << Base));
 const key_override_t Base_EKC_2    = ko_make_with_layers(MOD_MASK_SHIFT, KC_2, UM(EKC_2_Base_shifted), (1 << Base));
 const key_override_t Base_EKC_3    = ko_make_with_layers(MOD_MASK_SHIFT, KC_3, UM(EKC_3_Base_shifted), (1 << Base));
@@ -128,6 +124,10 @@ const key_override_t Base_EKC_7    = ko_make_with_layers(MOD_MASK_SHIFT, KC_7, K
 const key_override_t Base_EKC_8    = ko_make_with_layers(MOD_MASK_SHIFT, KC_8, KC_ASTR, (1 << Base));
 const key_override_t Base_EKC_9    = ko_make_with_layers(MOD_MASK_SHIFT, KC_9, KC_HASH, (1 << Base));
 const key_override_t Base_EKC_0    = ko_make_with_layers(MOD_MASK_SHIFT, KC_0, KC_AT, (1 << Base));
+const key_override_t Base_EKC_DK   = ko_make_with_layers(MOD_MASK_SHIFT, OSL(DK), KC_EXLM, (1 << Base));
+const key_override_t Base_EKC_MNS  = ko_make_with_layers(MOD_MASK_SHIFT, KC_MINS, KC_QUES, (1 << Base));
+const key_override_t Base_EKC_DOT  = ko_make_with_layers(MOD_MASK_SHIFT, KC_DOT, KC_COLN, (1 << Base));
+const key_override_t Base_EKC_COMM = ko_make_with_layers(MOD_MASK_SHIFT, KC_COMM, KC_SCLN, (1 << Base));
 const key_override_t Base_EKC_SPC  = ko_make_with_layers(MOD_MASK_SHIFT, KC_SPC, UM(EKC_SPC_Base_shifted), (1 << Base));
 const key_override_t DK_EKC_D      = ko_make_with_layers(MOD_MASK_SHIFT, KC_UNDS, KC_UNDS, (1 << DK));
 const key_override_t DK_EKC_DK     = ko_make_with_layers(MOD_MASK_SHIFT, KC_TRNS, UM(EKC_DK_DK_shifted), (1 << DK));
@@ -165,38 +165,45 @@ const key_override_t Sym_EKC_COMM  = ko_make_with_layers(MOD_MASK_SHIFT, KC_COLN
 const key_override_t Sym_EKC_K     = ko_make_with_layers(MOD_MASK_SHIFT, KC_QUES, UM(EKC_K_Sym_shifted), (1 << Sym));
 const key_override_t Sym_EKC_SPC   = ko_make_with_layers(MOD_MASK_SHIFT, KC_SPC, KC_SPC, (1 << Sym));
 
-const key_override_t **key_overrides = (const key_override_t *[]){&Base_EKC_DK, &Base_EKC_MNS, &Base_EKC_DOT, &Base_EKC_COMM, &Base_EKC_1, &Base_EKC_2, &Base_EKC_3, &Base_EKC_4, &Base_EKC_5, &Base_EKC_6, &Base_EKC_7, &Base_EKC_8, &Base_EKC_9, &Base_EKC_0, &Base_EKC_SPC, &DK_EKC_D, &DK_EKC_DK, &DK_EKC_L, &DK_EKC_R, &Sym_EKC_Q, &Sym_EKC_C, &Sym_EKC_O, &Sym_EKC_P, &Sym_EKC_W, &Sym_EKC_J, &Sym_EKC_M, &Sym_EKC_D, &Sym_EKC_DK, &Sym_EKC_Y, &Sym_EKC_A, &Sym_EKC_S, &Sym_EKC_E, &Sym_EKC_N, &Sym_EKC_F, &Sym_EKC_L, &Sym_EKC_R, &Sym_EKC_T, &Sym_EKC_I, &Sym_EKC_U, &Sym_EKC_Z, &Sym_EKC_X, &Sym_EKC_MNS, &Sym_EKC_V, &Sym_EKC_B, &Sym_EKC_DOT, &Sym_EKC_H, &Sym_EKC_G, &Sym_EKC_COMM, &Sym_EKC_K, &Sym_EKC_SPC, NULL};
+const key_override_t **key_overrides = (const key_override_t *[]){
+    &Base_EKC_1, &Base_EKC_2, &Base_EKC_3, &Base_EKC_4, &Base_EKC_5, &Base_EKC_6, &Base_EKC_7, &Base_EKC_8, &Base_EKC_9, &Base_EKC_0, &Base_EKC_DK, &Base_EKC_MNS, &Base_EKC_DOT, &Base_EKC_COMM, &Base_EKC_SPC, &DK_EKC_D, &DK_EKC_DK, &DK_EKC_L, &DK_EKC_R, &Sym_EKC_Q, &Sym_EKC_C, &Sym_EKC_O, &Sym_EKC_P, &Sym_EKC_W, &Sym_EKC_J, &Sym_EKC_M, &Sym_EKC_D, &Sym_EKC_DK, &Sym_EKC_Y, &Sym_EKC_A, &Sym_EKC_S, &Sym_EKC_E, &Sym_EKC_N, &Sym_EKC_F, &Sym_EKC_L, &Sym_EKC_R, &Sym_EKC_T, &Sym_EKC_I, &Sym_EKC_U, &Sym_EKC_Z, &Sym_EKC_X, &Sym_EKC_MNS, &Sym_EKC_V, &Sym_EKC_B, &Sym_EKC_DOT, &Sym_EKC_H, &Sym_EKC_G, &Sym_EKC_COMM, &Sym_EKC_K, &Sym_EKC_SPC, NULL,
+};
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [Base] = LAYOUT(
         // clang-format off
-        KC_ESC ,  KC_1 ,  KC_2 ,  KC_3 ,  KC_4 ,  KC_5 , _______,           _______,  KC_6 ,  KC_7,   KC_8 ,  KC_9 ,  KC_0 , QK_BOOT,
-        KC_TAB ,  KC_Q ,  KC_C ,  KC_O ,  KC_P ,  KC_W , KC_DEL ,           KC_BSPC,  KC_J ,  KC_M ,  KC_D , OSL(DK) ,  KC_Y , _______,
-        KC_GRV ,  KC_A ,  KC_S ,  KC_E ,  KC_N ,  KC_F , _______,           _______,  KC_L ,  KC_R ,  KC_T ,  KC_I ,  KC_U , _______,
-        KC_LSFT,  KC_Z ,  KC_X , KC_MINS,  KC_V ,  KC_B ,                             KC_DOT,  KC_H ,  KC_G ,KC_COMM,  KC_K , KC_RSFT,
-        KC_LCTL, _______, KC_LEFT,KC_RIGHT, KC_LGUI,         _______,            _______,           KC_UP , KC_DOWN, _______, _______, _______,
-                                           _______, _______, _______,     _______, KC_ENTER, KC_SPC
+
+         KC_ESC ,   KC_1  ,   KC_2  ,   KC_3  ,   KC_4  ,   KC_5  , _______ ,           _______ ,   KC_6  ,   KC_7  ,   KC_8  ,   KC_9  ,   KC_0  , QK_BOOT ,
+         KC_TAB ,   KC_Q  ,   KC_C  ,   KC_O  ,   KC_P  ,   KC_W  ,  KC_DEL ,           KC_BSPC ,   KC_J  ,   KC_M  ,   KC_D  , OSL(DK) ,   KC_Y  , _______ ,
+         KC_GRV ,   KC_A  ,   KC_S  ,   KC_E  ,   KC_N  ,   KC_F  , _______ ,           _______ ,   KC_L  ,   KC_R  ,   KC_T  ,   KC_I  ,   KC_U  , _______ ,
+        KC_LSFT ,   KC_Z  ,   KC_X  , KC_MINS ,   KC_V  ,   KC_B  ,                    KC_DOT ,   KC_H  ,   KC_G  , KC_COMM ,   KC_K  , KC_RSFT ,
+        KC_LCTL , _______ , KC_LEFT , KC_RIGHT, KC_LGUI ,         _______ ,     _______ ,        KC_UP  , KC_DOWN , _______ , _______ , _______ ,
+                            _______ , _______ , _______ ,     _______ , KC_ENTER,  KC_SPC
+
         // clang-format on
         ),
     [DK] = LAYOUT(
         // clang-format off
-        KC_ESC ,  UP(EKC_1_DK_base, EKC_1_DK_shifted) ,  UP(EKC_2_DK_base, EKC_2_DK_shifted) ,  UP(EKC_3_DK_base, EKC_3_DK_shifted) ,  UM(EKC_4_DK_base) ,  UM(EKC_W_Sym_shifted) , _______,           _______,  KC_TRNS ,  KC_TRNS,   UM(EKC_8_DK_base) ,  UM(EKC_9_DK_base) ,  UM(EKC_0_DK_base) , QK_BOOT,
-        KC_TAB ,  UP(EKC_Q_DK_base, EKC_Q_DK_shifted) ,  UP(EKC_C_DK_base, EKC_C_DK_shifted) ,  UP(EKC_O_DK_base, EKC_O_DK_shifted) ,  UP(EKC_P_DK_base, EKC_P_DK_shifted) ,  KC_TRNS , KC_DEL ,           KC_BSPC,  KC_TRNS ,  UM(EKC_M_DK_base) ,  KC_UNDS , KC_TRNS ,  UP(EKC_Y_DK_base, EKC_Y_DK_shifted) , _______,
-        KC_GRV ,  UP(EKC_A_DK_base, EKC_A_DK_shifted) ,  UP(EKC_S_DK_base, EKC_S_DK_shifted) ,  UP(EKC_E_DK_base, EKC_E_DK_shifted) ,  UP(EKC_N_DK_base, EKC_N_DK_shifted) ,  UP(EKC_F_DK_base, EKC_F_DK_shifted) , _______,           _______,  KC_LPRN ,  KC_RPRN ,  UP(EKC_T_DK_base, EKC_T_DK_shifted) ,  UP(EKC_I_DK_base, EKC_I_DK_shifted) ,  UP(EKC_U_DK_base, EKC_U_DK_shifted) , _______,
-        KC_LSFT,  UP(EKC_Z_DK_base, EKC_Z_DK_shifted) ,  KC_TRNS , UP(EKC_MNS_DK_base, EKC_MNS_DK_shifted),  UM(EKC_V_DK_base) ,  UM(EKC_B_DK_base) ,                             UM(EKC_DOT_DK_base),  KC_TRNS ,  KC_TRNS ,UP(EKC_COMM_DK_base, EKC_COMM_DK_shifted),  KC_TRNS , KC_RSFT,
-        KC_LCTL, _______, KC_LEFT,KC_RIGHT, KC_LGUI,         _______,            _______,           KC_UP , KC_DOWN, _______, _______, _______,
-                                           _______, _______, _______,     _______, KC_ENTER, UM(EKC_3_DK_shifted)
+
+                         _______                 ,    UP(EKC_1_DK_base, EKC_1_DK_shifted)   ,    UP(EKC_2_DK_base, EKC_2_DK_shifted)   ,    UP(EKC_3_DK_base, EKC_3_DK_shifted)   ,             UM(EKC_4_DK_base)            ,           UM(EKC_W_Sym_shifted)          ,                  _______                 ,                            _______                 ,                  KC_TRNS                 ,                  KC_TRNS                 ,             UM(EKC_8_DK_base)            ,             UM(EKC_9_DK_base)            ,             UM(EKC_0_DK_base)            ,                  _______                 ,
+                         _______                 ,    UP(EKC_Q_DK_base, EKC_Q_DK_shifted)   ,    UP(EKC_C_DK_base, EKC_C_DK_shifted)   ,    UP(EKC_O_DK_base, EKC_O_DK_shifted)   ,    UP(EKC_P_DK_base, EKC_P_DK_shifted)   ,                  KC_TRNS                 ,                  _______                 ,                            _______                 ,                  KC_TRNS                 ,             UM(EKC_M_DK_base)            ,                  KC_UNDS                 ,                  KC_TRNS                 ,    UP(EKC_Y_DK_base, EKC_Y_DK_shifted)   ,                  _______                 ,
+                         _______                 ,    UP(EKC_A_DK_base, EKC_A_DK_shifted)   ,    UP(EKC_S_DK_base, EKC_S_DK_shifted)   ,    UP(EKC_E_DK_base, EKC_E_DK_shifted)   ,    UP(EKC_N_DK_base, EKC_N_DK_shifted)   ,    UP(EKC_F_DK_base, EKC_F_DK_shifted)   ,                  _______                 ,                            _______                 ,                  KC_LPRN                 ,                  KC_RPRN                 ,    UP(EKC_T_DK_base, EKC_T_DK_shifted)   ,    UP(EKC_I_DK_base, EKC_I_DK_shifted)   ,    UP(EKC_U_DK_base, EKC_U_DK_shifted)   ,                  _______                 ,
+                         _______                 ,    UP(EKC_Z_DK_base, EKC_Z_DK_shifted)   ,                  KC_TRNS                 ,  UP(EKC_MNS_DK_base, EKC_MNS_DK_shifted) ,             UM(EKC_V_DK_base)            ,             UM(EKC_B_DK_base)            ,                              UM(EKC_DOT_DK_base)           ,                  KC_TRNS                 ,                  KC_TRNS                 , UP(EKC_COMM_DK_base, EKC_COMM_DK_shifted),                  KC_TRNS                 ,                  _______                 ,
+                         _______                 ,                  _______                 ,                  _______                 ,                  _______                 ,                  _______                 ,                          _______                 ,                      _______                 ,                        _______                 ,                  _______                 ,                  _______                 ,                  _______                 ,                  _______                 ,
+                                             _______                 ,                  _______                 ,                  _______                 ,                      _______                 ,                  _______                 ,           UM(EKC_3_DK_shifted)
+
         // clang-format on
         ),
     [Sym] = LAYOUT(
         // clang-format off
-        KC_ESC ,  UP(EKC_1_Sym_base, EKC_1_Sym_shifted) ,  UP(EKC_2_Sym_base, EKC_2_Sym_shifted) ,  UP(EKC_3_Sym_base, EKC_3_Sym_shifted) ,  UP(EKC_4_Sym_base, EKC_4_Sym_shifted) ,  UP(EKC_5_Sym_base, EKC_5_Sym_shifted) , _______,           _______,  UP(EKC_6_Sym_base, EKC_6_Sym_shifted) ,  UP(EKC_7_Sym_base, EKC_7_Sym_shifted),   UP(EKC_8_Sym_base, EKC_8_Sym_shifted) ,  UP(EKC_9_Sym_base, EKC_9_Sym_shifted) ,  UP(EKC_0_Sym_base, EKC_0_Sym_shifted) , QK_BOOT,
-        KC_TAB ,  KC_CIRC ,  KC_LABK ,  KC_RABK ,  KC_DLR ,  KC_PERC , KC_DEL ,           KC_BSPC,  KC_AT ,  KC_AMPR ,  KC_ASTR , KC_QUOT ,  KC_GRV , _______,
-        KC_GRV ,  KC_LCBR ,  KC_LPRN ,  KC_RPRN ,  KC_RCBR ,  KC_EQL , _______,           _______,  KC_BSLS ,  KC_PLUS ,  KC_MINS ,  KC_SLSH ,  KC_DQUO , _______,
-        KC_LSFT,  KC_TILD ,  KC_LBRC , KC_RBRC,  KC_UNDS ,  KC_HASH ,                             KC_PIPE,  KC_EXLM ,  KC_SCLN ,KC_COLN,  KC_QUES , KC_RSFT,
-        KC_LCTL, _______, KC_LEFT,KC_RIGHT, KC_LGUI,         _______,            _______,           KC_UP , KC_DOWN, _______, _______, _______,
-                                           _______, _______, _______,     _______, KC_ENTER, KC_SPC
-        // clang-format on
-        )
 
+                       _______               , UP(EKC_1_Sym_base, EKC_1_Sym_shifted), UP(EKC_2_Sym_base, EKC_2_Sym_shifted), UP(EKC_3_Sym_base, EKC_3_Sym_shifted), UP(EKC_4_Sym_base, EKC_4_Sym_shifted), UP(EKC_5_Sym_base, EKC_5_Sym_shifted),                _______               ,                          _______               , UP(EKC_6_Sym_base, EKC_6_Sym_shifted), UP(EKC_7_Sym_base, EKC_7_Sym_shifted), UP(EKC_8_Sym_base, EKC_8_Sym_shifted), UP(EKC_9_Sym_base, EKC_9_Sym_shifted), UP(EKC_0_Sym_base, EKC_0_Sym_shifted),                _______               ,
+                       _______               ,                KC_CIRC               ,                KC_LABK               ,                KC_RABK               ,                KC_DLR                ,                KC_PERC               ,                _______               ,                          _______               ,                 KC_AT                ,                KC_AMPR               ,                KC_ASTR               ,                KC_QUOT               ,                KC_GRV                ,                _______               ,
+                       _______               ,                KC_LCBR               ,                KC_LPRN               ,                KC_RPRN               ,                KC_RCBR               ,                KC_EQL                ,                _______               ,                          _______               ,                KC_BSLS               ,                KC_PLUS               ,                KC_MINS               ,                KC_SLSH               ,                KC_DQUO               ,                _______               ,
+                       _______               ,                KC_TILD               ,                KC_LBRC               ,                KC_RBRC               ,                KC_UNDS               ,                KC_HASH               ,                                  KC_PIPE               ,                KC_EXLM               ,                KC_SCLN               ,                KC_COLN               ,                KC_QUES               ,                _______               ,
+                       _______               ,                _______               ,                _______               ,                _______               ,                _______               ,                        _______               ,                    _______               ,                      _______               ,                _______               ,                _______               ,                _______               ,                _______               ,
+                                           _______               ,                _______               ,                _______               ,                    _______               ,                _______               ,                KC_SPC
+
+        // clang-format on
+        ),
 };

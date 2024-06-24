@@ -278,7 +278,7 @@ class Gen:
         return ovr
 
     def _gen_override(self):
-        override_line = "const key_override_t {name} = ko_make_basic(MOD_MASK_SHIFT, {key}, {skey});"
+        override_line = "const key_override_t {name} = ko_make_with_layers(MOD_MASK_SHIFT, {key}, {skey}, (1 << {mode}));"
         tpl = """
         {overrides}
 
@@ -289,11 +289,14 @@ class Gen:
         """
         overrides = []
         override_names = []
-        for _, override_per_kc in self.override.items():
+        for m, override_per_kc in self.override.items():
             for _, override in override_per_kc.items():
                 overrides.append(
                     override_line.format(
-                        name=override.name, key=override.kc, skey=override.skc
+                        name=override.name,
+                        key=override.kc,
+                        skey=override.skc,
+                        mode=m.name,
                     )
                 )
                 override_names.append(f"&{override.name}")

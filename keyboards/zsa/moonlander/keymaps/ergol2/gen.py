@@ -271,6 +271,8 @@ class Gen:
     def _create_override(self, m: Mode, name, kc, skc):
         if is_unicode(skc):
             skc = f"UM({self.unicode_to_idx[skc]})"
+        if skc == "KC_TRNS":
+            skc = kc
         ovr = Override(m=m, n=name, kc=kc, skc=skc)
         self.override[m][name] = ovr
         return ovr

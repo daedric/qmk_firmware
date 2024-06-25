@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import copy
 from enum import Enum
 from typing import Generator
+from unicodedata import name as unicode_name
 
 
 class Mode(Enum):
@@ -96,6 +97,8 @@ class Layer:
         self.max_length = 0
 
     def set_key(self, coord: Coord, key: str):
+        if key == "KC_TRNS":
+            return
         self.rows[coord.row][coord.col] = key
         self.max_length = max(self.max_length, len(key))
 
@@ -159,7 +162,7 @@ ergol_keys = {
         "EKC_J": Key(base="KC_J", shifted=None, dk_base="KC_TRNS", dk_shifted="KC_TRNS", sym_base="KC_AT", sym_shifted=0x030A),
         "EKC_M": Key(base="KC_M", shifted=None, dk_base=0x00B5, dk_shifted="KC_TRNS", sym_base="KC_AMPR", sym_shifted="KC_TRNS"),
         "EKC_D": Key(base="KC_D", shifted=None, dk_base="KC_UNDS", dk_shifted="KC_TRNS", sym_base="KC_ASTR", sym_shifted=0x00D7),
-        "EKC_DK": Key(base="DK", shifted="KC_EXLM", dk_base=0x0308, dk_shifted=0x00A1, sym_base="KC_QUOT", sym_shifted=0x0301),
+        "EKC_DK": Key(base="OSL(DK)", shifted="KC_EXLM", dk_base=0x0308, dk_shifted=0x00A1, sym_base="KC_QUOT", sym_shifted=0x0301),
         "EKC_Y": Key(base="KC_Y", shifted=None, dk_base=0x00FB, dk_shifted=0x00DB, sym_base="KC_GRV", sym_shifted=0x0300),
 
         "EKC_A": Key(base="KC_A", shifted=None, dk_base=0x00E0, dk_shifted=0x00C0, sym_base="KC_LCBR", sym_shifted=0x030C),
@@ -212,7 +215,7 @@ ergol_keys = {
         "EKC_J": Key(base="FR_J", shifted=None, dk_base="KC_TRNS", dk_shifted="KC_TRNS", sym_base="FR_AT", sym_shifted=0x030A),
         "EKC_M": Key(base="FR_M", shifted=None, dk_base=0x00B5, dk_shifted="KC_TRNS", sym_base="FR_AMPR", sym_shifted="KC_TRNS"),
         "EKC_D": Key(base="FR_D", shifted=None, dk_base="FR_UNDS", dk_shifted="KC_TRNS", sym_base="FR_ASTR", sym_shifted=0x00D7),
-        "EKC_DK": Key(base="DK", shifted="KC_EXLM", dk_base=0x0308, dk_shifted=0x00A1, sym_base="FR_QUOT", sym_shifted=0x0301),
+        "EKC_DK": Key(base="OSL(DK)", shifted="KC_EXLM", dk_base=0x0308, dk_shifted=0x00A1, sym_base="FR_QUOT", sym_shifted=0x0301),
         "EKC_Y": Key(base="FR_Y", shifted=None, dk_base=0x00FB, dk_shifted=0x00DB, sym_base="FR_GRV", sym_shifted=0x0300),
 
         "EKC_A": Key(base="FR_A", shifted=None, dk_base="FR_AGRV", dk_shifted=0x00C0, sym_base="FR_LCBR", sym_shifted=0x0306),
@@ -274,6 +277,8 @@ class Gen:
         _FIRST = SAFE_RANGE
     }};
 
+    {aliases}
+
     {unicode_map}
 
     {overrides}
@@ -292,6 +297,7 @@ class Gen:
         self.unicode_to_idx: dict[int, str] = {}
         self.unicode_map: str | None = None
         self.override: dict[Mode, dict[str, Override]] = defaultdict(dict)
+        self.aliases: dict[str, str] = {}
 
         self._check()
 
@@ -302,7 +308,7 @@ class Gen:
 
     def _gen_unicode_map(self):
         indices_line = "{idx}"
-        unicode_map_line = "[{idx}]  = {cp} /* {dsp} */"
+        unicode_map_line = "[{idx}]  = {cp:#06x} /* {dsp} */"
         tpl = """
             enum unicode_names {{
                 {indices}
@@ -316,7 +322,7 @@ class Gen:
         indices = []
         unicode_map_lines = []
         already_gen = set()
-        for ekc, key in self.keys.items():
+        for _, key in self.keys.items():
             for m in Mode:
                 kc, skc = key.get_kc(m)
                 for k, n in ((kc, "base"), (skc, "shifted")):
@@ -324,9 +330,14 @@ class Gen:
                         if k in already_gen:
                             continue
                         already_gen.add(k)
-                        idx = indices_line.format(idx=f"{ekc}_{m.name}_{n}")
+
+                        ch = chr(k)
+                        name = unicode_name(ch)
+                        name = name.replace(" ", "_").replace("-", "_")
+
+                        idx = indices_line.format(idx=name)
                         self.unicode_to_idx[k] = idx
-                        ln = unicode_map_line.format(idx=idx, cp=k, dsp=chr(k))
+                        ln = unicode_map_line.format(idx=idx, cp=k, dsp=ch)
                         indices.append(idx)
                         unicode_map_lines.append(ln)
         self.unicode_map = tpl.format(
@@ -371,13 +382,20 @@ class Gen:
             override_names=",\n".join(override_names),
         )
 
+    def _alias(self, name, value):
+        if v := self.aliases.get(name):
+            if v != value:
+                raise Exception(f"conflict for {name}, we have {v} and {value}")
+            return name
+        self.aliases[name] = value
+        return name
+
     def _gen_kc(self, m: Mode, name, kc, skc):
-        if kc == "DK":
-            kc = "OSL(DK)"
+        alias_name = f"{m.name}_{name}"
         match get_shift_mod(kc, skc):
             case ShiftMode.Default:
                 if is_unicode(kc):
-                    return f"UM({self.unicode_to_idx[kc]})"
+                    return self._alias(alias_name, f"UM({self.unicode_to_idx[kc]})")
                 return kc
             case ShiftMode.CustomKey:
                 raise Exception("Custom key are not implemented")
@@ -385,9 +403,12 @@ class Gen:
                 self._create_override(m, name, kc, skc)
                 return kc
             case ShiftMode.UnicodeMap:
-                return "UP({}, {})".format(
-                    self.unicode_to_idx[kc],
-                    self.unicode_to_idx[skc],
+                return self._alias(
+                    alias_name,
+                    "UP({}, {})".format(
+                        self.unicode_to_idx[kc],
+                        self.unicode_to_idx[skc],
+                    ),
                 )
 
     def _gen(self, m: Mode):
@@ -411,6 +432,9 @@ class Gen:
 
         return self.file_tpl.format(
             layers=",\n".join(m.name for m in Mode),
+            aliases="\n".join(
+                f"#define {name} {value}" for name, value in self.aliases.items()
+            ),
             unicode_map=self.unicode_map,
             overrides=self.override_code,
             layouts=",\n".join(

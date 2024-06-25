@@ -6,7 +6,7 @@
 #include "keycodes.h"
 #include "version.h"
 
-enum layers { Base, DK, Sym };
+enum layers { Base, DK, Sym, Media };
 
 enum custom_keycodes { _FIRST = SAFE_RANGE };
 
@@ -32,7 +32,6 @@ enum custom_keycodes { _FIRST = SAFE_RANGE };
 #define DK_EKC_F UP(LATIN_SMALL_LETTER_N_WITH_TILDE, LATIN_CAPITAL_LETTER_N_WITH_TILDE)
 #define DK_EKC_T UP(LATIN_SMALL_LETTER_I_WITH_CIRCUMFLEX, LATIN_CAPITAL_LETTER_I_WITH_CIRCUMFLEX)
 #define DK_EKC_I UP(LATIN_SMALL_LETTER_I_WITH_DIAERESIS, LATIN_CAPITAL_LETTER_I_WITH_DIAERESIS)
-#define DK_EKC_U UP(LATIN_SMALL_LETTER_U_WITH_GRAVE, LATIN_CAPITAL_LETTER_U_WITH_GRAVE)
 #define DK_EKC_Z UP(LATIN_SMALL_LETTER_AE, LATIN_CAPITAL_LETTER_AE)
 #define DK_EKC_MNS UP(NON_BREAKING_HYPHEN, INVERTED_QUESTION_MARK)
 #define DK_EKC_V UM(EN_DASH)
@@ -284,7 +283,6 @@ const key_override_t Sym_EKC_L     = ko_make_with_layers(MOD_MASK_SHIFT, KC_BSLS
 const key_override_t Sym_EKC_R     = ko_make_with_layers(MOD_MASK_SHIFT, KC_PLUS, UM(PLUS_SIGN_ABOVE_EQUALS_SIGN), (1 << Sym));
 const key_override_t Sym_EKC_T     = ko_make_with_layers(MOD_MASK_SHIFT, KC_MINS, UM(COMBINING_MACRON), (1 << Sym));
 const key_override_t Sym_EKC_I     = ko_make_with_layers(MOD_MASK_SHIFT, KC_SLSH, UM(DIVISION_SIGN), (1 << Sym));
-const key_override_t Sym_EKC_U     = ko_make_with_layers(MOD_MASK_SHIFT, KC_DQUO, UM(COMBINING_DOUBLE_ACUTE_ACCENT), (1 << Sym));
 const key_override_t Sym_EKC_Z     = ko_make_with_layers(MOD_MASK_SHIFT, KC_TILD, UM(COMBINING_TILDE), (1 << Sym));
 const key_override_t Sym_EKC_X     = ko_make_with_layers(MOD_MASK_SHIFT, KC_LBRC, UM(COMBINING_COMMA_BELOW), (1 << Sym));
 const key_override_t Sym_EKC_MNS   = ko_make_with_layers(MOD_MASK_SHIFT, KC_RBRC, UM(COMBINING_OGONEK), (1 << Sym));
@@ -298,19 +296,19 @@ const key_override_t Sym_EKC_K     = ko_make_with_layers(MOD_MASK_SHIFT, KC_QUES
 const key_override_t Sym_EKC_SPC   = ko_make_with_layers(MOD_MASK_SHIFT, KC_SPC, KC_SPC, (1 << Sym));
 
 const key_override_t **key_overrides = (const key_override_t *[]){
-    &Base_EKC_1, &Base_EKC_2, &Base_EKC_3, &Base_EKC_4, &Base_EKC_5, &Base_EKC_6, &Base_EKC_7, &Base_EKC_8, &Base_EKC_9, &Base_EKC_0, &Base_EKC_DK, &Base_EKC_MNS, &Base_EKC_DOT, &Base_EKC_COMM, &Base_EKC_SPC, &DK_EKC_D, &DK_EKC_L, &DK_EKC_R, &Sym_EKC_Q, &Sym_EKC_C, &Sym_EKC_O, &Sym_EKC_P, &Sym_EKC_W, &Sym_EKC_J, &Sym_EKC_M, &Sym_EKC_D, &Sym_EKC_DK, &Sym_EKC_Y, &Sym_EKC_A, &Sym_EKC_S, &Sym_EKC_E, &Sym_EKC_N, &Sym_EKC_F, &Sym_EKC_L, &Sym_EKC_R, &Sym_EKC_T, &Sym_EKC_I, &Sym_EKC_U, &Sym_EKC_Z, &Sym_EKC_X, &Sym_EKC_MNS, &Sym_EKC_V, &Sym_EKC_B, &Sym_EKC_DOT, &Sym_EKC_H, &Sym_EKC_G, &Sym_EKC_COMM, &Sym_EKC_K, &Sym_EKC_SPC, NULL,
+    &Base_EKC_1, &Base_EKC_2, &Base_EKC_3, &Base_EKC_4, &Base_EKC_5, &Base_EKC_6, &Base_EKC_7, &Base_EKC_8, &Base_EKC_9, &Base_EKC_0, &Base_EKC_DK, &Base_EKC_MNS, &Base_EKC_DOT, &Base_EKC_COMM, &Base_EKC_SPC, &DK_EKC_D, &DK_EKC_L, &DK_EKC_R, &Sym_EKC_Q, &Sym_EKC_C, &Sym_EKC_O, &Sym_EKC_P, &Sym_EKC_W, &Sym_EKC_J, &Sym_EKC_M, &Sym_EKC_D, &Sym_EKC_DK, &Sym_EKC_Y, &Sym_EKC_A, &Sym_EKC_S, &Sym_EKC_E, &Sym_EKC_N, &Sym_EKC_F, &Sym_EKC_L, &Sym_EKC_R, &Sym_EKC_T, &Sym_EKC_I, &Sym_EKC_Z, &Sym_EKC_X, &Sym_EKC_MNS, &Sym_EKC_V, &Sym_EKC_B, &Sym_EKC_DOT, &Sym_EKC_H, &Sym_EKC_G, &Sym_EKC_COMM, &Sym_EKC_K, &Sym_EKC_SPC, NULL,
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [Base] = LAYOUT(
         // clang-format off
 
-         KC_ESC ,   KC_1  ,   KC_2  ,   KC_3  ,   KC_4  ,   KC_5  , _______ ,           _______ ,   KC_6  ,   KC_7  ,   KC_8  ,   KC_9  ,   KC_0  , QK_BOOT ,
-         KC_TAB ,   KC_Q  ,   KC_C  ,   KC_O  ,   KC_P  ,   KC_W  ,  KC_DEL ,           KC_BSPC ,   KC_J  ,   KC_M  ,   KC_D  , OSL(DK) ,   KC_Y  , _______ ,
-         KC_GRV ,   KC_A  ,   KC_S  ,   KC_E  ,   KC_N  ,   KC_F  , _______ ,           _______ ,   KC_L  ,   KC_R  ,   KC_T  ,   KC_I  ,   KC_U  , _______ ,
-        KC_LSFT ,   KC_Z  ,   KC_X  , KC_MINS ,   KC_V  ,   KC_B  ,                    KC_DOT ,   KC_H  ,   KC_G  , KC_COMM ,   KC_K  , KC_RSFT ,
-        KC_LCTL , _______ , KC_LEFT , KC_RIGHT, KC_LGUI ,         _______ ,     _______ ,        KC_UP  , KC_DOWN , _______ , _______ , _______ ,
-                            MO(Sym) , _______ , _______ ,     _______ , KC_ENTER,  KC_SPC
+            KC_ESC     ,      KC_1      ,      KC_2      ,      KC_3      ,      KC_4      ,      KC_5      ,     _______    ,               _______    ,      KC_6      ,      KC_7      ,      KC_8      ,      KC_9      ,      KC_0      ,     QK_BOOT    ,
+            KC_TAB     ,      KC_Q      ,      KC_C      ,      KC_O      ,      KC_P      ,      KC_W      ,     KC_DEL     ,               KC_BSPC    ,      KC_J      ,      KC_M      ,      KC_D      ,     OSL(DK)    ,      KC_Y      ,     _______    ,
+            KC_GRV     ,      KC_A      ,      KC_S      ,      KC_E      ,      KC_N      ,      KC_F      ,     _______    ,               _______    ,      KC_L      ,      KC_R      ,      KC_T      ,      KC_I      , LT(Media, KC_U),     _______    ,
+            KC_LSFT    ,      KC_Z      ,      KC_X      ,     KC_MINS    ,      KC_V      ,      KC_B      ,                       KC_DOT     ,      KC_H      ,      KC_G      ,     KC_COMM    ,      KC_K      ,     KC_RSFT    ,
+            KC_LCTL    ,     _______    ,     KC_LEFT    ,    KC_RIGHT    ,     KC_LGUI    ,             _______    ,         _______    ,            KC_UP     ,     KC_DOWN    ,     _______    ,     _______    ,     _______    ,
+                                MO(Sym)    ,     _______    ,     _______    ,         _______    ,    KC_ENTER    ,     KC_SPC
 
         // clang-format on
         ),
@@ -319,7 +317,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
           _______  ,  DK_EKC_1  ,  DK_EKC_2  ,  DK_EKC_3  ,  DK_EKC_4  ,  DK_EKC_5  ,   _______  ,             _______  ,   _______  ,   _______  ,  DK_EKC_8  ,  DK_EKC_9  ,  DK_EKC_0  ,   _______  ,
           _______  ,  DK_EKC_Q  ,  DK_EKC_C  ,  DK_EKC_O  ,  DK_EKC_P  ,   _______  ,   _______  ,             _______  ,   _______  ,  DK_EKC_M  ,   KC_UNDS  ,  DK_EKC_DK ,  DK_EKC_Y  ,   _______  ,
-          _______  ,  DK_EKC_A  ,  DK_EKC_S  ,  DK_EKC_E  ,  DK_EKC_N  ,  DK_EKC_F  ,   _______  ,             _______  ,   KC_LPRN  ,   KC_RPRN  ,  DK_EKC_T  ,  DK_EKC_I  ,  DK_EKC_U  ,   _______  ,
+          _______  ,  DK_EKC_A  ,  DK_EKC_S  ,  DK_EKC_E  ,  DK_EKC_N  ,  DK_EKC_F  ,   _______  ,             _______  ,   KC_LPRN  ,   KC_RPRN  ,  DK_EKC_T  ,  DK_EKC_I  ,   _______  ,   _______  ,
           _______  ,  DK_EKC_Z  ,   _______  , DK_EKC_MNS ,  DK_EKC_V  ,  DK_EKC_B  ,                   DK_EKC_DOT ,   _______  ,   _______  , DK_EKC_COMM,   _______  ,   _______  ,
           _______  ,   _______  ,   _______  ,   _______  ,   _______  ,           _______  ,       _______  ,         _______  ,   _______  ,   _______  ,   _______  ,   _______  ,
                               _______  ,   _______  ,   _______  ,       _______  ,   _______  , DK_EKC_SPC
@@ -331,10 +329,22 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
          _______ , Sym_EKC_1, Sym_EKC_2, Sym_EKC_3, Sym_EKC_4, Sym_EKC_5,  _______ ,            _______ , Sym_EKC_6, Sym_EKC_7, Sym_EKC_8, Sym_EKC_9, Sym_EKC_0,  _______ ,
          _______ ,  KC_CIRC ,  KC_LABK ,  KC_RABK ,  KC_DLR  ,  KC_PERC ,  _______ ,            _______ ,   KC_AT  ,  KC_AMPR ,  KC_ASTR ,  KC_QUOT ,  KC_GRV  ,  _______ ,
-         _______ ,  KC_LCBR ,  KC_LPRN ,  KC_RPRN ,  KC_RCBR ,  KC_EQL  ,  _______ ,            _______ ,  KC_BSLS ,  KC_PLUS ,  KC_MINS ,  KC_SLSH ,  KC_DQUO ,  _______ ,
+         _______ ,  KC_LCBR ,  KC_LPRN ,  KC_RPRN ,  KC_RCBR ,  KC_EQL  ,  _______ ,            _______ ,  KC_BSLS ,  KC_PLUS ,  KC_MINS ,  KC_SLSH ,  _______ ,  _______ ,
          _______ ,  KC_TILD ,  KC_LBRC ,  KC_RBRC ,  KC_UNDS ,  KC_HASH ,                    KC_PIPE ,  KC_EXLM ,  KC_SCLN ,  KC_COLN ,  KC_QUES ,  _______ ,
          _______ ,  _______ ,  _______ ,  _______ ,  _______ ,          _______ ,      _______ ,        _______ ,  _______ ,  _______ ,  _______ ,  _______ ,
                              _______ ,  _______ ,  _______ ,      _______ ,  _______ ,  KC_SPC
+
+        // clang-format on
+        ),
+    [Media] = LAYOUT(
+        // clang-format off
+
+        _______, _______, _______, _______, _______, _______, _______,           _______, _______, _______, _______, _______, KC_PWR , QK_BOOT,
+        _______, _______, _______, _______, _______, _______, _______,           _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, _______,           _______, _______, _______, KC_MPRV, KC_MNXT, _______, KC_MPLY,
+        _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______,         _______,     _______,       UC_NEXT, UC_PREV, _______, _______, _______,
+                            _______, _______, _______,     _______, _______, _______
 
         // clang-format on
         ),

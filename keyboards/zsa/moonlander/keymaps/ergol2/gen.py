@@ -380,12 +380,12 @@ class Gen:
         #include "version.h"
 
     enum layers {{
-        {layers}
+        {layers},
     }};
 
     enum custom_keycodes {{
         _FIRST = SAFE_RANGE,
-        {custom_keycodes}
+        {custom_keycodes},
     }};
 
     {aliases}
@@ -427,12 +427,12 @@ class Gen:
         unicode_map_line = "[{idx}]  = {cp:#06x} /* {dsp} */"
         tpl = """
             enum unicode_names {{
-                {indices}
+                {indices},
             }};
 
 
             const uint32_t PROGMEM unicode_map[] = {{
-                {unicode_map_lines}
+                {unicode_map_lines},
             }};
         """
         indices = []

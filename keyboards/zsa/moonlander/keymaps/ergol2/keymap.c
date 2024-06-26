@@ -6,9 +6,45 @@
 #include "keycodes.h"
 #include "version.h"
 
-enum layers { Base, DK, Sym, Media, Fn };
+enum layers {
+    Base,
+    DK,
+    Sym,
+    Media,
+    Fn,
+};
 
-enum custom_keycodes { _FIRST = SAFE_RANGE, Base_EKC_1, Base_EKC_2, Base_EKC_3, Base_EKC_SPC, Sym_EKC_Q, Sym_EKC_C, Sym_EKC_O, Sym_EKC_W, Sym_EKC_J, Sym_EKC_D, Sym_EKC_DK, Sym_EKC_Y, Sym_EKC_A, Sym_EKC_N, Sym_EKC_F, Sym_EKC_L, Sym_EKC_R, Sym_EKC_T, Sym_EKC_I, Sym_EKC_U, Sym_EKC_Z, Sym_EKC_X, Sym_EKC_MNS, Sym_EKC_V, Sym_EKC_DOT, Sym_EKC_H, Sym_EKC_G, Sym_EKC_K };
+enum custom_keycodes {
+    _FIRST = SAFE_RANGE,
+    Base_EKC_1,
+    Base_EKC_2,
+    Base_EKC_3,
+    Base_EKC_SPC,
+    Sym_EKC_Q,
+    Sym_EKC_C,
+    Sym_EKC_O,
+    Sym_EKC_W,
+    Sym_EKC_J,
+    Sym_EKC_D,
+    Sym_EKC_DK,
+    Sym_EKC_Y,
+    Sym_EKC_A,
+    Sym_EKC_N,
+    Sym_EKC_F,
+    Sym_EKC_L,
+    Sym_EKC_R,
+    Sym_EKC_T,
+    Sym_EKC_I,
+    Sym_EKC_U,
+    Sym_EKC_Z,
+    Sym_EKC_X,
+    Sym_EKC_MNS,
+    Sym_EKC_V,
+    Sym_EKC_DOT,
+    Sym_EKC_H,
+    Sym_EKC_G,
+    Sym_EKC_K,
+};
 
 #define DK_EKC_1 UP(DOUBLE_LOW_9_QUOTATION_MARK, SINGLE_LOW_9_QUOTATION_MARK)
 #define DK_EKC_2 UP(LEFT_DOUBLE_QUOTATION_MARK, LEFT_SINGLE_QUOTATION_MARK)
@@ -146,7 +182,7 @@ enum unicode_names {
     DEGREE_SIGN,
     SUBSCRIPT_ZERO,
     SUPERSCRIPT_ZERO,
-    NARROW_NO_BREAK_SPACE
+    NARROW_NO_BREAK_SPACE,
 };
 
 const uint32_t PROGMEM unicode_map[] = {
@@ -244,7 +280,7 @@ const uint32_t PROGMEM unicode_map[] = {
     [DEGREE_SIGN]                                = 0x00b0 /* ° */,
     [SUBSCRIPT_ZERO]                             = 0x2080 /* ₀ */,
     [SUPERSCRIPT_ZERO]                           = 0x2070 /* ⁰ */,
-    [NARROW_NO_BREAK_SPACE]                      = 0x202f /*   */
+    [NARROW_NO_BREAK_SPACE]                      = 0x202f /*   */,
 };
 
 const key_override_t Base_EKC_4    = ko_make_with_layers(MOD_MASK_SHIFT, KC_4, KC_DLR, (1 << Base));

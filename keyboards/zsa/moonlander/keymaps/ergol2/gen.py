@@ -14,6 +14,7 @@ class Mode(Enum):
     Sym = 2
     # perso
     Media = 3
+    Fn = 4
 
 
 class ShiftMode(Enum):
@@ -31,24 +32,96 @@ def is_unicode(kc) -> bool:
     return isinstance(kc, int)
 
 
-def get_shift_mod(kc, skc) -> ShiftMode:
-    if is_basic(kc):
-        if skc is None or kc == skc:
-            return ShiftMode.Default
-        return ShiftMode.Override
-    if is_unicode(kc):
-        if is_unicode(skc):
-            return ShiftMode.UnicodeMap
-        if skc == "KC_TRNS":
-            return ShiftMode.Default
-    return ShiftMode.CustomKey
-
-
 def parse_lt(kc):
     pattern = re.compile(r"^LT\((?P<layer>\w+)\|\s*(?P<keycode>\w+)\)$")
     if match := pattern.match(kc):
         return match.group("layer"), match.group("keycode")
     raise ValueError("kc does not match the expected format LT(layer|keycode)")
+
+
+class KeyCode:
+    def __init__(self, kc: str | int):
+        self._kc: str | int = kc
+        self._layer: str | None = None
+        self._fn: str | None = None
+        if isinstance(kc, str) and kc.startswith("LT"):
+            self._layer, self._kc = parse_lt(kc)
+            self._fn = "LT"
+
+    @property
+    def has_function(self):
+        return self._fn is not None
+
+    @property
+    def is_unicode(self):
+        return is_unicode(self._kc)
+
+    @property
+    def is_transparent(self):
+        return is_transparent(self._kc)
+
+    @property
+    def is_basic(self):
+        return is_basic(self._kc)
+
+    @property
+    def layer(self):
+        return self._layer
+
+    @property
+    def raw_keycode(self) -> str | int:
+        return self._kc
+
+    def replace_keycode(self, new_kc):
+        self._kc = new_kc
+
+    def remove_function(self):
+        self._layer = None
+        self._fn = None
+
+    @property
+    def kc(self):
+        if self.has_function:
+            return f"{self._fn}({self.layer}, {self._kc})"
+        return self._kc
+
+    def __str__(self):
+        return f"{self.kc}"
+
+    def __repr__(self):
+        return str(self.kc)
+
+    def __eq__(self, other: "KeyCode|str"):
+        if not isinstance(other, KeyCode):
+            if isinstance(other, str):
+                return self == KeyCode(other)
+            return False
+        return self.kc == other.kc
+
+    def __hash__(self):
+        return hash(self.kc)
+
+    def __format__(self, format_spec):
+        if self.has_function:
+            return f"{self._fn}({self.layer}, {format(self._kc, format_spec)})"
+        return format(self._kc, format_spec)
+
+    def __len__(self):
+        return len(self.kc)
+
+
+def get_shift_mod(kc: KeyCode, skc: KeyCode) -> ShiftMode:
+    if kc.is_basic:
+        if skc is None or kc == skc:
+            return ShiftMode.Default
+        if skc.is_basic:
+            return ShiftMode.Override
+    if kc.is_unicode:
+        if skc.is_unicode:
+            return ShiftMode.UnicodeMap
+        if skc.is_transparent:
+            return ShiftMode.Default
+    return ShiftMode.CustomKey
 
 
 TRNS = "_______"
@@ -62,8 +135,8 @@ def is_transparent(kc):
 class Override:
     m: Mode
     n: str
-    kc: str | int
-    skc: str | int
+    kc: KeyCode
+    skc: KeyCode
 
     @property
     def name(self):
@@ -110,7 +183,7 @@ class Coord:
 
 
 class Layer:
-    def __init__(self, layout: "Keymaps", rows: list[list[str]]):
+    def __init__(self, layout: "Keymaps", rows: list[list[KeyCode]]):
         self.layout: "Keymaps" = layout
         self.rows = rows
         self.max_length = 0
@@ -118,14 +191,14 @@ class Layer:
             for c in cols:
                 self.max_length = max(self.max_length, len(c))
 
-    def set_key(self, coord: Coord, key: str):
-        if is_transparent(key):
+    def set_key(self, coord: Coord, key: KeyCode):
+        if key.is_transparent:
             return
 
         prev = self.rows[coord.row][coord.col]
-        if not is_transparent(prev) and key != prev:
+        if not prev.is_transparent and key != prev:
             raise Exception(f"Key at {coord} is not transparent: {prev}")
-        self.rows[coord.row][coord.col] = key
+        self.rows[coord.row][coord.col] = key.kc
         self.max_length = max(self.max_length, len(key))
 
     def format(self, FMT: str | None):
@@ -154,7 +227,11 @@ class Keymaps:
             line = line.lstrip()
             if line.startswith("//"):
                 continue
-            keys = list(filter(None, [kc.strip() for kc in line.split(",")]))
+            keys = list(
+                filter(
+                    None, [KeyCode(kc.strip()) for kc in line.split(",") if kc.strip()]
+                )
+            )
             if keys:
                 base_layer.append(keys)
         return base_layer
@@ -174,7 +251,7 @@ class Keymaps:
     def set_base(self, layer):
         self.base_layer = self._parse(layer)
 
-    def base_keys(self) -> Generator[tuple[str, Coord], None, None]:
+    def base_keys(self) -> Generator[tuple[KeyCode, Coord], None, None]:
         for row, cols in enumerate(self.base_layer):
             for col, name in enumerate(cols):
                 yield (name, Coord(row=row, col=col))
@@ -307,7 +384,8 @@ class Gen:
     }};
 
     enum custom_keycodes {{
-        _FIRST = SAFE_RANGE
+        _FIRST = SAFE_RANGE,
+        {custom_keycodes}
     }};
 
     {aliases}
@@ -321,16 +399,21 @@ class Gen:
         {layouts},
     }};
 
+    {custom_process}
+
     """
 
     def __init__(self, host, kms: "Keymaps"):
         self.host = host
         self.keymaps = kms
         self.keys = ergol_keys[self.host]
-        self.unicode_to_idx: dict[int, str] = {}
+        self.unicode_to_idx: dict[KeyCode, str] = {}
         self.unicode_map: str | None = None
         self.override: dict[Mode, dict[str, Override]] = defaultdict(dict)
-        self.aliases: dict[str, str] = {}
+        self.aliases: dict[str, KeyCode] = {}
+        self.custom_keys: dict[Mode, dict[str, tuple[KeyCode, KeyCode]]] = defaultdict(
+            dict
+        )
 
         self._check()
 
@@ -358,13 +441,15 @@ class Gen:
         for _, key in self.keys.items():
             for m in Mode:
                 kc, skc = key.get_kc(m)
+                kc = KeyCode(kc)
+                skc = KeyCode(skc)
                 for k in (kc, skc):
-                    if is_unicode(k):
+                    if k.is_unicode:
                         if k in already_gen:
                             continue
                         already_gen.add(k)
 
-                        ch = chr(k)
+                        ch = chr(k.raw_keycode)
                         name = unicode_name(ch)
                         name = name.replace(" ", "_").replace("-", "_")
 
@@ -378,10 +463,10 @@ class Gen:
             unicode_map_lines=",\n".join(unicode_map_lines),
         )
 
-    def _create_override(self, m: Mode, name, kc, skc):
-        if is_unicode(skc):
-            skc = f"UM({self.unicode_to_idx[skc]})"
-        if is_transparent(skc):
+    def _create_override(self, m: Mode, name, kc: KeyCode, skc: KeyCode):
+        if skc.is_unicode:
+            skc = KeyCode(f"UM({self.unicode_to_idx[skc]})")
+        if skc.is_transparent:
             skc = kc
         ovr = Override(m=m, n=name, kc=kc, skc=skc)
         self.override[m][name] = ovr
@@ -415,54 +500,122 @@ class Gen:
             override_names=",\n".join(override_names),
         )
 
-    def _alias(self, name, value):
+    def _create_custom_key(self, m: Mode, name, kc: KeyCode, skc: KeyCode):
+        if not skc.is_unicode:
+            raise Exception("a custom key must be mapped to an unicode keycode")
+
+        if kc.has_function or skc.has_function:
+            raise Exception(
+                f"custom keycode cannot be created with keycode using special function (LT/OSL/...): {kc}"
+            )
+        custom_key_name = f"{m.name}_{name}"
+        self.custom_keys[m][custom_key_name] = (kc, skc)
+        return KeyCode(custom_key_name)
+
+    def _gen_custom_keys(self):
+        custom_process_tpl = """
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {{
+        const bool key_pressed = record->event.pressed;
+        const bool shifted = (get_mods() & MOD_MASK_SHIFT) != 0;
+        uint16_t kc;
+        uint32_t skc;
+        switch (keycode) {{
+        default:
+            return true;
+        {cases}
+        }}
+
+        if (shifted) {{
+            if (key_pressed) {{
+                uint8_t temp_mod = get_mods();
+                clear_mods();
+                register_unicode(skc);
+                set_mods(temp_mod);
+                return false;
+            }}
+        }} else {{
+            if (key_pressed) {{
+                register_code16(kc);
+            }} else {{
+                unregister_code16(kc);
+            }}
+        }}
+
+    return true;
+}}
+        """
+        custom_keycode_process_tpl = """
+            case {name}:
+                kc = {kc};
+                skc = {skc:#06x};
+                break;
+        """
+
+        self.custom_keycodes = []
+        self.cases = []
+        for _, ckcs in self.custom_keys.items():
+            for name, (kc, skc) in ckcs.items():
+                self.custom_keycodes.append(name)
+                self.cases.append(
+                    custom_keycode_process_tpl.format(name=name, kc=kc, skc=skc)
+                )
+
+        self.custom_process = custom_process_tpl.format(cases="\n".join(self.cases))
+
+    def _alias(self, name, value: KeyCode):
+        if not isinstance(value, KeyCode):
+            raise Exception("alias keycode")
         if v := self.aliases.get(name):
             if v != value:
                 raise Exception(f"conflict for {name}, we have {v} and {value}")
             return name
         self.aliases[name] = value
-        return name
+        return KeyCode(name)
 
-    def _gen_kc(self, m: Mode, name, kc, skc):
+    def _gen_kc(self, m: Mode, name, kc: KeyCode, skc: KeyCode):
         alias_name = f"{m.name}_{name}"
         match get_shift_mod(kc, skc):
             case ShiftMode.Default:
-                if is_unicode(kc):
-                    return self._alias(alias_name, f"UM({self.unicode_to_idx[kc]})")
+                if kc.is_unicode:
+                    return self._alias(
+                        alias_name, KeyCode(f"UM({self.unicode_to_idx[kc]})")
+                    )
                 return kc
             case ShiftMode.CustomKey:
-                raise Exception("Custom key are not implemented")
+                return self._create_custom_key(m, name, kc, skc)
             case ShiftMode.Override:
                 self._create_override(m, name, kc, skc)
                 return kc
             case ShiftMode.UnicodeMap:
-                return self._alias(
+                a = self._alias(
                     alias_name,
-                    "UP({}, {})".format(
-                        self.unicode_to_idx[kc],
-                        self.unicode_to_idx[skc],
+                    KeyCode(
+                        "UP({}, {})".format(
+                            self.unicode_to_idx[kc],
+                            self.unicode_to_idx[skc],
+                        ),
                     ),
                 )
+                return a
 
     def _gen(self, m: Mode):
         l = self.keymaps.add_layer(m)
         for n, coord in self.keymaps.base_keys():
-            is_lt = False
-            layer = None
-            if m == Mode.Base and n.startswith("LT"):
-                is_lt = True
-                layer, n = parse_lt(n)
-
-            key = self.keys.get(n)
+            key = self.keys.get(n.raw_keycode)
             if not key:
                 if m == Mode.Base:
                     l.set_key(coord, n)
                 continue
 
-            kc, skc = key.get_kc(m)
-            final_kc = self._gen_kc(m, n, kc, skc)
-            if is_lt:
-                final_kc = f"LT({layer}, {final_kc})"
+            kc = copy.deepcopy(n)
+
+            if m != Mode.Base and kc.has_function:
+                kc.remove_function()
+
+            rkc, rskc = key.get_kc(m)
+            kc.replace_keycode(rkc)
+            skc = KeyCode(rskc)
+            final_kc = self._gen_kc(m, n.raw_keycode, kc, skc)
             l.set_key(coord, final_kc)
 
     def gen(self):
@@ -470,8 +623,10 @@ class Gen:
         for m in Mode:
             self._gen(m)
         self._gen_override()
+        self._gen_custom_keys()
 
         return self.file_tpl.format(
+            custom_keycodes=",\n".join(self.custom_keycodes),
             layers=",\n".join(m.name for m in Mode),
             aliases="\n".join(
                 f"#define {name} {value}" for name, value in self.aliases.items()
@@ -481,6 +636,7 @@ class Gen:
             layouts=",\n".join(
                 f"[{m.name}] = LAYOUT({self.keymaps.format(m)})" for m in Mode
             ),
+            custom_process=self.custom_process,
         )
 
 
@@ -497,7 +653,7 @@ fmt_layer = """
 
 
 base = """
-        KC_ESC ,  EKC_1 ,  EKC_2 ,  EKC_3 ,  EKC_4 ,  EKC_5 , _______,           _______,  EKC_6 ,  EKC_7,   EKC_8 ,  EKC_9 ,  EKC_0 , QK_BOOT,
+        KC_ESC ,  EKC_1 ,  EKC_2 ,  EKC_3 ,  EKC_4 ,  EKC_5 , LT(Fn|KC_ESC),    LT(Fn|KC_ESC),  EKC_6 ,  EKC_7,   EKC_8 ,  EKC_9 ,  EKC_0 , QK_BOOT,
         KC_TAB ,  EKC_Q ,  EKC_C ,  EKC_O ,  EKC_P ,  EKC_W , KC_DEL ,           KC_BSPC,  EKC_J ,  EKC_M ,  EKC_D , EKC_DK ,  EKC_Y , _______,
         KC_GRV ,  EKC_A ,  EKC_S ,  EKC_E ,  EKC_N ,  EKC_F , _______,           _______,  EKC_L ,  EKC_R ,  EKC_T ,  EKC_I ,  LT(Media|EKC_U), _______,
         KC_LSFT,  EKC_Z ,  EKC_X , EKC_MNS,  EKC_V ,  EKC_B ,                             EKC_DOT,  EKC_H ,  EKC_G ,EKC_COMM,  EKC_K , KC_RSFT,
@@ -511,12 +667,22 @@ media = """
         _______, _______, _______, _______, _______, _______, _______,           _______, _______, _______, KC_MPRV, KC_MNXT, _______, KC_MPLY,
         _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______,         _______,     _______,       UC_NEXT, UC_PREV, _______, _______, _______,
+                                            KC_PGDN, KC_PGUP, _______,     _______, _______, _______
+"""
+
+fn = """
+        KC_F1 ,  KC_F2 ,  KC_F3 ,  KC_F4 ,  KC_F5 ,  KC_F6 ,  _______,           _______,  KC_F7 ,  KC_F8 ,  KC_F9 ,  KC_F10, KC_F11 , KC_F12 ,
+        _______, _______, _______, _______, _______, _______, _______,           _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, RGB_VAI, _______, _______, _______, _______,           _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, RGB_VAD, _______, _______, _______,                    _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______,         _______,     _______,       _______, _______, _______, _______, _______,
                                            _______, _______, _______,     _______, _______, _______
 """
 
 km = Keymaps(fmt_layer=fmt_layer, nb_keys=72)
 km.set_base(base)
 km.add_layer(Mode.Media, media)
+km.add_layer(Mode.Fn, fn)
 
 g = Gen(host, km)
 r = g.gen()

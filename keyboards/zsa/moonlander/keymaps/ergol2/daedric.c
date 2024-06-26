@@ -1,3 +1,4 @@
+#include "color.h"
 #include QMK_KEYBOARD_H
 
 #include "version.h"
@@ -32,15 +33,43 @@ void keyboard_post_init_user(void) {
 
 #define HSV_C(h, s, v) ({h, s, v})
 #define BLACK HSV_C(0, 0, 0)
+#define GREEN HSV_C(0x55, 0xFF, 0xFF)
+#define PURPL HSV_C(0xBF, 0xFF, 0xFF)
+#define RED HSV_C(0x0, 0xFF, 0xFF)
+#define GOLD HSV_C(0x24, 0xFF, 0xFF)
+#define WHITE HSV_C(0x0, 0x0, 0xFF)
 
 // XXX:
-enum layers { Base, DK, Sym, Media };
+enum layers { Base, DK, Sym, Media, Fn };
 
 const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
-    [Base]  = {LED_LAYOUT_ALL(BLACK)},
-    [DK]    = {LED_LAYOUT_ALL(BLACK)},
+    [Base]  = {LED_LAYOUT(
+        // clang-format off
+        BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, GREEN,           GREEN, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, GOLD , BLACK, BLACK,
+        BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, RED  , BLACK,
+        BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,                         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, BLACK, BLACK, BLACK,         BLACK,     BLACK,             BLACK, BLACK, BLACK, BLACK, BLACK,
+                                    PURPL, BLACK, BLACK,      BLACK, BLACK, PURPL
+        // clang-format on
+        )
+
+    },
+     [DK] = {LED_LAYOUT_ALL(BLACK)},
     [Sym]   = {LED_LAYOUT_ALL(BLACK)},
     [Media] = {LED_LAYOUT_ALL(BLACK)},
+    [Fn]    = {LED_LAYOUT(
+        // clang-format off
+        BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, WHITE, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, WHITE, BLACK, BLACK, BLACK,                         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, BLACK, BLACK, BLACK,         BLACK,     BLACK,             BLACK, BLACK, BLACK, BLACK, BLACK,
+                                    BLACK, BLACK, BLACK,      BLACK, BLACK, BLACK
+        // clang-format on
+        )
+
+    },
 };
 
 void set_layer_color(int layer) {

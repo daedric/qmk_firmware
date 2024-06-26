@@ -382,149 +382,149 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     const bool key_pressed = record->event.pressed;
     const bool shifted     = (get_mods() & MOD_MASK_SHIFT) != 0;
     uint16_t   kc;
-    uint32_t   skc;
+    uint8_t    skc_idx;
     switch (keycode) {
         default:
             return true;
 
         case Base_EKC_1:
-            kc  = KC_1;
-            skc = 0x20ac;
+            kc      = KC_1;
+            skc_idx = EURO_SIGN;
             break;
 
         case Base_EKC_2:
-            kc  = KC_2;
-            skc = 0x00ab;
+            kc      = KC_2;
+            skc_idx = LEFT_POINTING_DOUBLE_ANGLE_QUOTATION_MARK;
             break;
 
         case Base_EKC_3:
-            kc  = KC_3;
-            skc = 0x00bb;
+            kc      = KC_3;
+            skc_idx = RIGHT_POINTING_DOUBLE_ANGLE_QUOTATION_MARK;
             break;
 
         case Base_EKC_SPC:
-            kc  = KC_SPC;
-            skc = 0x202f;
+            kc      = KC_SPC;
+            skc_idx = NARROW_NO_BREAK_SPACE;
             break;
 
         case Sym_EKC_Q:
-            kc  = KC_CIRC;
-            skc = 0x0302;
+            kc      = KC_CIRC;
+            skc_idx = COMBINING_CIRCUMFLEX_ACCENT;
             break;
 
         case Sym_EKC_C:
-            kc  = KC_LABK;
-            skc = 0x2264;
+            kc      = KC_LABK;
+            skc_idx = LESS_THAN_OR_EQUAL_TO;
             break;
 
         case Sym_EKC_O:
-            kc  = KC_RABK;
-            skc = 0x2265;
+            kc      = KC_RABK;
+            skc_idx = GREATER_THAN_OR_EQUAL_TO;
             break;
 
         case Sym_EKC_W:
-            kc  = KC_PERC;
-            skc = 0x2030;
+            kc      = KC_PERC;
+            skc_idx = PER_MILLE_SIGN;
             break;
 
         case Sym_EKC_J:
-            kc  = KC_AT;
-            skc = 0x030a;
+            kc      = KC_AT;
+            skc_idx = COMBINING_RING_ABOVE;
             break;
 
         case Sym_EKC_D:
-            kc  = KC_ASTR;
-            skc = 0x00d7;
+            kc      = KC_ASTR;
+            skc_idx = MULTIPLICATION_SIGN;
             break;
 
         case Sym_EKC_DK:
-            kc  = KC_QUOT;
-            skc = 0x0301;
+            kc      = KC_QUOT;
+            skc_idx = COMBINING_ACUTE_ACCENT;
             break;
 
         case Sym_EKC_Y:
-            kc  = KC_GRV;
-            skc = 0x0300;
+            kc      = KC_GRV;
+            skc_idx = COMBINING_GRAVE_ACCENT;
             break;
 
         case Sym_EKC_A:
-            kc  = KC_LCBR;
-            skc = 0x030c;
+            kc      = KC_LCBR;
+            skc_idx = COMBINING_CARON;
             break;
 
         case Sym_EKC_N:
-            kc  = KC_RCBR;
-            skc = 0x0307;
+            kc      = KC_RCBR;
+            skc_idx = COMBINING_DOT_ABOVE;
             break;
 
         case Sym_EKC_F:
-            kc  = KC_EQL;
-            skc = 0x2260;
+            kc      = KC_EQL;
+            skc_idx = NOT_EQUAL_TO;
             break;
 
         case Sym_EKC_L:
-            kc  = KC_BSLS;
-            skc = 0x0338;
+            kc      = KC_BSLS;
+            skc_idx = COMBINING_LONG_SOLIDUS_OVERLAY;
             break;
 
         case Sym_EKC_R:
-            kc  = KC_PLUS;
-            skc = 0x2a72;
+            kc      = KC_PLUS;
+            skc_idx = PLUS_SIGN_ABOVE_EQUALS_SIGN;
             break;
 
         case Sym_EKC_T:
-            kc  = KC_MINS;
-            skc = 0x0304;
+            kc      = KC_MINS;
+            skc_idx = COMBINING_MACRON;
             break;
 
         case Sym_EKC_I:
-            kc  = KC_SLSH;
-            skc = 0x00f7;
+            kc      = KC_SLSH;
+            skc_idx = DIVISION_SIGN;
             break;
 
         case Sym_EKC_U:
-            kc  = KC_DQUO;
-            skc = 0x030b;
+            kc      = KC_DQUO;
+            skc_idx = COMBINING_DOUBLE_ACUTE_ACCENT;
             break;
 
         case Sym_EKC_Z:
-            kc  = KC_TILD;
-            skc = 0x0303;
+            kc      = KC_TILD;
+            skc_idx = COMBINING_TILDE;
             break;
 
         case Sym_EKC_X:
-            kc  = KC_LBRC;
-            skc = 0x0326;
+            kc      = KC_LBRC;
+            skc_idx = COMBINING_COMMA_BELOW;
             break;
 
         case Sym_EKC_MNS:
-            kc  = KC_RBRC;
-            skc = 0x0328;
+            kc      = KC_RBRC;
+            skc_idx = COMBINING_OGONEK;
             break;
 
         case Sym_EKC_V:
-            kc  = KC_UNDS;
-            skc = 0x2013;
+            kc      = KC_UNDS;
+            skc_idx = EN_DASH;
             break;
 
         case Sym_EKC_DOT:
-            kc  = KC_PIPE;
-            skc = 0x00a6;
+            kc      = KC_PIPE;
+            skc_idx = BROKEN_BAR;
             break;
 
         case Sym_EKC_H:
-            kc  = KC_EXLM;
-            skc = 0x00ac;
+            kc      = KC_EXLM;
+            skc_idx = NOT_SIGN;
             break;
 
         case Sym_EKC_G:
-            kc  = KC_SCLN;
-            skc = 0x0312;
+            kc      = KC_SCLN;
+            skc_idx = COMBINING_TURNED_COMMA_ABOVE;
             break;
 
         case Sym_EKC_K:
-            kc  = KC_QUES;
-            skc = 0x0306;
+            kc      = KC_QUES;
+            skc_idx = COMBINING_BREVE;
             break;
     }
 
@@ -532,6 +532,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (key_pressed) {
             uint8_t temp_mod = get_mods();
             clear_mods();
+            uint32_t skc = unicodemap_get_code_point(skc_idx);
             register_unicode(skc);
             set_mods(temp_mod);
             return false;

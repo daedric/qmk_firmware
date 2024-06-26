@@ -518,7 +518,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {{
         const bool key_pressed = record->event.pressed;
         const bool shifted = (get_mods() & MOD_MASK_SHIFT) != 0;
         uint16_t kc;
-        uint32_t skc;
+        uint8_t skc_idx;
         switch (keycode) {{
         default:
             return true;
@@ -529,6 +529,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {{
             if (key_pressed) {{
                 uint8_t temp_mod = get_mods();
                 clear_mods();
+                uint32_t skc = unicodemap_get_code_point(skc_idx);
                 register_unicode(skc);
                 set_mods(temp_mod);
                 return false;
@@ -547,7 +548,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {{
         custom_keycode_process_tpl = """
             case {name}:
                 kc = {kc};
-                skc = {skc:#06x};
+                skc_idx = {skc_name};
                 break;
         """
 
@@ -557,7 +558,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {{
             for name, (kc, skc) in ckcs.items():
                 self.custom_keycodes.append(name)
                 self.cases.append(
-                    custom_keycode_process_tpl.format(name=name, kc=kc, skc=skc)
+                    custom_keycode_process_tpl.format(
+                        name=name, kc=kc, skc_name=self.unicode_to_idx[skc]
+                    )
                 )
 
         self.custom_process = custom_process_tpl.format(cases="\n".join(self.cases))

@@ -41,6 +41,7 @@
 // As long as I'm using <= 8 layers
 // https://github.com/qmk/qmk_firmware/blob/a4da5f219fe0f202a07afa045fc0c08f6ce1f86b/docs/squeezing_avr.md#layers
 #define LAYER_STATE_8BIT
+#define RGBLIGHT_MAX_LAYERS 8
 
 // Default animation speed
 #define RGB_MATRIX_STARTUP_SPD 60
@@ -67,14 +68,7 @@
 #define ESC_(...) VAN##__VA_ARGS__
 #define VANISH
 
-// clang-format off
 #define LED_LAYOUT(l0, l5, l10, l15, l20, l25, l29, l65, l61, l56, l51, l46, l41, l36, l1, l6, l11, l16, l21, l26, l30, l66, l62, l57, l52, l47, l42, l37, l2, l7, l12, l17, l22, l27, l31, l67, l63, l58, l53, l48, l43, l38, l3, l8, l13, l18, l23, l28, l64, l59, l54, l49, l44, l39, l4, l9, l14, l19, l24, l35, l71, l60, l55, l50, l45, l40, l32, l33, l34, l70, l69, l68) \
-    DEPAREN(l0), DEPAREN(l5), DEPAREN(l10), DEPAREN(l15), DEPAREN(l20), DEPAREN(l25), DEPAREN(l29),              DEPAREN(l65), DEPAREN(l61), DEPAREN(l56), DEPAREN(l51), DEPAREN(l46), DEPAREN(l41), DEPAREN(l36), \
-    DEPAREN(l1), DEPAREN(l6), DEPAREN(l11), DEPAREN(l16), DEPAREN(l21), DEPAREN(l26), DEPAREN(l30),              DEPAREN(l66), DEPAREN(l62), DEPAREN(l57), DEPAREN(l52), DEPAREN(l47), DEPAREN(l42), DEPAREN(l37), \
-    DEPAREN(l2), DEPAREN(l7), DEPAREN(l12), DEPAREN(l17), DEPAREN(l22), DEPAREN(l27), DEPAREN(l31),              DEPAREN(l67), DEPAREN(l63), DEPAREN(l58), DEPAREN(l53), DEPAREN(l48), DEPAREN(l43), DEPAREN(l38), \
-    DEPAREN(l3), DEPAREN(l8), DEPAREN(l13), DEPAREN(l18), DEPAREN(l23), DEPAREN(l28),                        DEPAREN(l64), DEPAREN(l59), DEPAREN(l54), DEPAREN(l49), DEPAREN(l44), DEPAREN(l39), \
-    DEPAREN(l4), DEPAREN(l9), DEPAREN(l14), DEPAREN(l19), DEPAREN(l24),      DEPAREN(l35),              DEPAREN(l71),      DEPAREN(l60), DEPAREN(l55), DEPAREN(l50), DEPAREN(l45), DEPAREN(l40), \
-                           DEPAREN(l32), DEPAREN(l33), DEPAREN(l34),    DEPAREN(l70), DEPAREN(l69), DEPAREN(l68)
-// clang-format on
+    DEPAREN(l0), DEPAREN(l1), DEPAREN(l2), DEPAREN(l3), DEPAREN(l4), DEPAREN(l5), DEPAREN(l6), DEPAREN(l7), DEPAREN(l8), DEPAREN(l9), DEPAREN(l10), DEPAREN(l11), DEPAREN(l12), DEPAREN(l13), DEPAREN(l14), DEPAREN(l15), DEPAREN(l16), DEPAREN(l17), DEPAREN(l18), DEPAREN(l19), DEPAREN(l20), DEPAREN(l21), DEPAREN(l22), DEPAREN(l23), DEPAREN(l24), DEPAREN(l25), DEPAREN(l26), DEPAREN(l27), DEPAREN(l28), DEPAREN(l29), DEPAREN(l30), DEPAREN(l31), DEPAREN(l32), DEPAREN(l33), DEPAREN(l34), DEPAREN(l35), DEPAREN(l36), DEPAREN(l37), DEPAREN(l38), DEPAREN(l39), DEPAREN(l40), DEPAREN(l41), DEPAREN(l42), DEPAREN(l43), DEPAREN(l44), DEPAREN(l45), DEPAREN(l46), DEPAREN(l47), DEPAREN(l48), DEPAREN(l49), DEPAREN(l50), DEPAREN(l51), DEPAREN(l52), DEPAREN(l53), DEPAREN(l54), DEPAREN(l55), DEPAREN(l56), DEPAREN(l57), DEPAREN(l58), DEPAREN(l59), DEPAREN(l60), DEPAREN(l61), DEPAREN(l62), DEPAREN(l63), DEPAREN(l64), DEPAREN(l65), DEPAREN(l66), DEPAREN(l67), DEPAREN(l68), DEPAREN(l69), DEPAREN(l70), DEPAREN(l71)
 
 #define LED_LAYOUT_ALL(color) LED_LAYOUT(color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color, color)

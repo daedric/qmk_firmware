@@ -1,10 +1,11 @@
 #include "color.h"
+#include "quantum.h"
 #include QMK_KEYBOARD_H
 
 #include "version.h"
 #include "config.h"
 
-static void set_let_for_input_mode(uint8_t input_mode);
+static void set_led_for_input_mode(uint8_t input_mode);
 
 void keyboard_post_init_user(void) {
     debug_enable = true;
@@ -28,7 +29,7 @@ void keyboard_post_init_user(void) {
     }
 
     set_unicode_input_mode(mode);
-    set_let_for_input_mode(mode);
+    set_led_for_input_mode(mode);
 }
 
 #define HSV_C(h, s, v) ({h, s, v})
@@ -38,6 +39,7 @@ void keyboard_post_init_user(void) {
 #define RED HSV_C(0x0, 0xFF, 0xFF)
 #define GOLD HSV_C(0x24, 0xFF, 0xFF)
 #define WHITE HSV_C(0x0, 0x0, 0xFF)
+#define ORANG HSV_C(0x15, 0xFF, 0xFF)
 
 // XXX:
 enum layers { Base, DK, Sym, Media, Fn };
@@ -52,24 +54,29 @@ const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
         BLACK, BLACK, BLACK, BLACK, BLACK,         BLACK,     BLACK,             BLACK, BLACK, BLACK, BLACK, BLACK,
                                     PURPL, BLACK, BLACK,      BLACK, BLACK, PURPL
         // clang-format on
-        )
-
-    },
+        )},
      [DK] = {LED_LAYOUT_ALL(BLACK)},
     [Sym]   = {LED_LAYOUT_ALL(BLACK)},
-    [Media] = {LED_LAYOUT_ALL(BLACK)},
-    [Fn]    = {LED_LAYOUT(
+    [Media] = {LED_LAYOUT(
+        // clang-format off
+        BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK,  RED , ORANG,
+        BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,                         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, BLACK, BLACK, BLACK,         BLACK,     BLACK,             BLACK, BLACK, BLACK, BLACK, BLACK,
+                                    BLACK, BLACK, BLACK,      BLACK, BLACK, BLACK
+        // clang-format on
+        )},
+    [Fn] = {LED_LAYOUT(
         // clang-format off
         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
-        BLACK, BLACK, WHITE, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, WHITE, BLACK, BLACK, BLACK, BLACK,           BLACK, RED, BLACK, BLACK, BLACK, BLACK, BLACK,
         BLACK, BLACK, WHITE, BLACK, BLACK, BLACK,                         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
         BLACK, BLACK, BLACK, BLACK, BLACK,         BLACK,     BLACK,             BLACK, BLACK, BLACK, BLACK, BLACK,
                                     BLACK, BLACK, BLACK,      BLACK, BLACK, BLACK
         // clang-format on
-        )
-
-    },
+        )},
 };
 
 void set_layer_color(int layer) {
@@ -86,6 +93,13 @@ void set_layer_color(int layer) {
             float f   = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
             rgb_matrix_set_color(i, f * rgb.r, f * rgb.g, f * rgb.b);
         }
+    }
+
+    // Toggle reg/green depending on whether the autocorrect is on or off
+    if (IS_LAYER_ON(Fn)) {
+        RGB   rgb = autocorrect_is_enabled() ? hsv_to_rgb((HSV)DEPAREN(GREEN)) : hsv_to_rgb((HSV)DEPAREN(RED));
+        float f   = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
+        rgb_matrix_set_color(63, f * rgb.r, f * rgb.g, f * rgb.b);
     }
 }
 
@@ -133,7 +147,7 @@ bool rgb_matrix_indicators_user(void) {
     return true;
 }
 
-static void set_let_for_input_mode(uint8_t input_mode) {
+static void set_led_for_input_mode(uint8_t input_mode) {
     ML_LED_4(false);
     ML_LED_5(false);
     ML_LED_6(false);
@@ -157,5 +171,5 @@ static void set_let_for_input_mode(uint8_t input_mode) {
 }
 
 void unicode_input_mode_set_user(uint8_t input_mode) {
-    set_let_for_input_mode(input_mode);
+    set_led_for_input_mode(input_mode);
 }

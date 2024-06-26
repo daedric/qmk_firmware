@@ -11,5 +11,6 @@ AUDIO_ENABLE = no
 # do not work with the dead key and overrides/UM()
 AUTO_SHIFT_ENABLE = no
 OS_DETECTION_ENABLE = yes
+AUTOCORRECT_ENABLE = yes
 
 SRC += daedric.c

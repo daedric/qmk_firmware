@@ -288,7 +288,7 @@ ergol_keys = {
         "EKC_U": Key(base="KC_U", shifted=None, dk_base=0x00F9, dk_shifted=0x00D9, sym_base="KC_DQUO", sym_shifted=0x030B),
 
         "EKC_Z": Key(base="KC_Z", shifted=None, dk_base=0x00E6, dk_shifted=0x00C6, sym_base="KC_TILD", sym_shifted=0x0303),
-        "EKC_X": Key(base="KC_X", shifted=None, dk_base="KC_TRNS", dk_shifted="KC_TRNS", sym_base="KC_LBRC", sym_shifted=0x0326),
+        "EKC_X": Key(base="KC_X", shifted=None, dk_base=0x00DF, dk_shifted=0x1E9E, sym_base="KC_LBRC", sym_shifted=0x0326),
         "EKC_MNS": Key(base="KC_MINS", shifted="KC_QUES", dk_base=0x2011, dk_shifted=0x00BF, sym_base="KC_RBRC", sym_shifted=0x0328),
         "EKC_V": Key(base="KC_V", shifted=None, dk_base=0x2013, dk_shifted="KC_TRNS", sym_base="KC_UNDS", sym_shifted=0x2013),
         "EKC_B": Key(base="KC_B", shifted=None, dk_base=0x2014, dk_shifted="KC_TRNS", sym_base="KC_HASH", sym_shifted="KC_TRNS"),
@@ -341,7 +341,7 @@ ergol_keys = {
         "EKC_U": Key(base="FR_U", shifted=None, dk_base=0x00F9, dk_shifted=0x00D9, sym_base="FR_DQUO", sym_shifted=0x030B),
 
         "EKC_Z": Key(base="FR_Z", shifted=None, dk_base=0x00E6, dk_shifted=0x00C6, sym_base="FR_TILD", sym_shifted=0x0303),
-        "EKC_X": Key(base="FR_X", shifted=None, dk_base="KC_TRNS", dk_shifted="KC_TRNS", sym_base="FR_LBRC", sym_shifted=0x0326),
+        "EKC_X": Key(base="FR_X", shifted=None, dk_base=0x00DF, dk_shifted=0x1E9E, sym_base="FR_LBRC", sym_shifted=0x0326),
         "EKC_MNS": Key(base="FR_MINS", shifted="FR_QUES", dk_base=0x2011, dk_shifted=0x00BF, sym_base="FR_RBRC", sym_shifted=0x0328),
         "EKC_V": Key(base="FR_V", shifted=None, dk_base=0x2013, dk_shifted="KC_TRNS", sym_base="FR_UNDS", sym_shifted=0x2013),
         "EKC_B": Key(base="FR_B", shifted=None, dk_base=0x2014, dk_shifted="KC_TRNS", sym_base="FR_HASH", sym_shifted="KC_TRNS"),

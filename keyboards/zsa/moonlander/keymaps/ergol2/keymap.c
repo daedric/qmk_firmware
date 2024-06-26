@@ -70,6 +70,7 @@ enum custom_keycodes {
 #define DK_EKC_I UP(LATIN_SMALL_LETTER_I_WITH_DIAERESIS, LATIN_CAPITAL_LETTER_I_WITH_DIAERESIS)
 #define DK_EKC_U UP(LATIN_SMALL_LETTER_U_WITH_GRAVE, LATIN_CAPITAL_LETTER_U_WITH_GRAVE)
 #define DK_EKC_Z UP(LATIN_SMALL_LETTER_AE, LATIN_CAPITAL_LETTER_AE)
+#define DK_EKC_X UP(LATIN_SMALL_LETTER_SHARP_S, LATIN_CAPITAL_LETTER_SHARP_S)
 #define DK_EKC_MNS UP(NON_BREAKING_HYPHEN, INVERTED_QUESTION_MARK)
 #define DK_EKC_V UM(EN_DASH)
 #define DK_EKC_B UM(EM_DASH)
@@ -136,6 +137,8 @@ enum unicode_names {
     LATIN_SMALL_LETTER_AE,
     LATIN_CAPITAL_LETTER_AE,
     COMBINING_TILDE,
+    LATIN_SMALL_LETTER_SHARP_S,
+    LATIN_CAPITAL_LETTER_SHARP_S,
     COMBINING_COMMA_BELOW,
     NON_BREAKING_HYPHEN,
     INVERTED_QUESTION_MARK,
@@ -234,6 +237,8 @@ const uint32_t PROGMEM unicode_map[] = {
     [LATIN_SMALL_LETTER_AE]                      = 0x00e6 /* æ */,
     [LATIN_CAPITAL_LETTER_AE]                    = 0x00c6 /* Æ */,
     [COMBINING_TILDE]                            = 0x0303 /* ̃ */,
+    [LATIN_SMALL_LETTER_SHARP_S]                 = 0x00df /* ß */,
+    [LATIN_CAPITAL_LETTER_SHARP_S]               = 0x1e9e /* ẞ */,
     [COMBINING_COMMA_BELOW]                      = 0x0326 /* ̦ */,
     [NON_BREAKING_HYPHEN]                        = 0x2011 /* ‑ */,
     [INVERTED_QUESTION_MARK]                     = 0x00bf /* ¿ */,
@@ -329,7 +334,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
           _______  ,  DK_EKC_1  ,  DK_EKC_2  ,  DK_EKC_3  ,  DK_EKC_4  ,  DK_EKC_5  ,   _______  ,             _______  ,   _______  ,   _______  ,  DK_EKC_8  ,  DK_EKC_9  ,  DK_EKC_0  ,   _______  ,
           _______  ,  DK_EKC_Q  ,  DK_EKC_C  ,  DK_EKC_O  ,  DK_EKC_P  ,   _______  ,   _______  ,             _______  ,   _______  ,  DK_EKC_M  ,   KC_UNDS  ,  DK_EKC_DK ,  DK_EKC_Y  ,   _______  ,
           _______  ,  DK_EKC_A  ,  DK_EKC_S  ,  DK_EKC_E  ,  DK_EKC_N  ,  DK_EKC_F  ,   _______  ,             _______  ,   KC_LPRN  ,   KC_RPRN  ,  DK_EKC_T  ,  DK_EKC_I  ,  DK_EKC_U  ,   _______  ,
-          _______  ,  DK_EKC_Z  ,   _______  , DK_EKC_MNS ,  DK_EKC_V  ,  DK_EKC_B  ,                   DK_EKC_DOT ,   _______  ,   _______  , DK_EKC_COMM,   _______  ,   _______  ,
+          _______  ,  DK_EKC_Z  ,  DK_EKC_X  , DK_EKC_MNS ,  DK_EKC_V  ,  DK_EKC_B  ,                   DK_EKC_DOT ,   _______  ,   _______  , DK_EKC_COMM,   _______  ,   _______  ,
           _______  ,   _______  ,   _______  ,   _______  ,   _______  ,           _______  ,       _______  ,         _______  ,   _______  ,   _______  ,   _______  ,   _______  ,
                               _______  ,   _______  ,   _______  ,       _______  ,   _______  , DK_EKC_SPC
 

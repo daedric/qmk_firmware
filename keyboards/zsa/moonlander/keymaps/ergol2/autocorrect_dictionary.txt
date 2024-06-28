@@ -4,3 +4,4 @@ lenght        -> length
 ouput         -> output
 widht         -> width
 bandwith      -> bandwidth
+apss          -> pass

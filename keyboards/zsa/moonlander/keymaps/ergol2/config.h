@@ -18,14 +18,6 @@
 
 #pragma once
 
-#ifndef NO_DEBUG
-#    define NO_DEBUG
-#endif // !NO_DEBUG
-#if !defined(NO_PRINT) && !defined(CONSOLE_ENABLE)
-#    define NO_PRINT
-#endif // !NO_PRINT
-#define NO_ACTION_TAPPING
-
 // Should not be required
 // #define ORYX_CONFIGURATOR
 
@@ -50,6 +42,9 @@
 // https://github.com/qmk/qmk_firmware/blob/a4da5f219fe0f202a07afa045fc0c08f6ce1f86b/docs/squeezing_avr.md#layers
 #define LAYER_STATE_8BIT
 #define RGBLIGHT_MAX_LAYERS 8
+#define LED_MATRIX_SLEEP
+#define RGBLIGHT_SLEEP
+#define RGB_MATRIX_SLEEP
 
 // Default animation speed
 #define RGB_MATRIX_STARTUP_SPD 60
@@ -104,15 +99,13 @@
 #undef ENABLE_RGB_MATRIX_SOLID_SPLASH
 #undef ENABLE_RGB_MATRIX_SOLID_MULTISPLASH
 
-#if 0
-#    define AUTO_SHIFT_TIMEOUT 175
+#define AUTO_SHIFT_TIMEOUT 175
 // NO_AUTO_SHIFT_TAB (simple define)
 // Do not Auto Shift KC_TAB but leave Auto Shift enabled for the other special
 // characters.
 // Autoshift has doc there: docs/features/auto_shift.md
 // https://github.com/qmk/qmk_firmware/blob/a4da5f219fe0f202a07afa045fc0c08f6ce1f86b/docs/features/auto_shift.md
-#    define NO_AUTO_SHIFT_TAB
-#endif
+#define NO_AUTO_SHIFT_TAB
 
 // From https://stackoverflow.com/a/62984543
 #define DEPAREN(X) ESC(ISH X)

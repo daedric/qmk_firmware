@@ -8,7 +8,7 @@
 static void set_led_for_input_mode(uint8_t input_mode);
 
 void keyboard_post_init_user(void) {
-    debug_enable = true;
+    /* debug_enable = true; */
     /* debug_matrix   = true; */
     /* debug_keyboard = true; */
     // debug_mouse=true;
@@ -41,11 +41,10 @@ void keyboard_post_init_user(void) {
 #define WHITE HSV_C(0x0, 0x0, 0xFF)
 #define ORANG HSV_C(0x15, 0xFF, 0xFF)
 
-// XXX:
-enum layers { Base, DK, Sym, Media, Fn };
+enum layers { Base, Qwerty, DK, Sym, Media, Fn };
 
 const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
-    [Base]  = {LED_LAYOUT(
+    [Base]   = {LED_LAYOUT(
         // clang-format off
         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, GREEN,           GREEN, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, GOLD , BLACK, BLACK,
@@ -55,9 +54,19 @@ const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
                                     PURPL, BLACK, BLACK,      BLACK, BLACK, PURPL
         // clang-format on
         )},
-     [DK] = {LED_LAYOUT_ALL(BLACK)},
-    [Sym]   = {LED_LAYOUT_ALL(BLACK)},
-    [Media] = {LED_LAYOUT(
+      [Qwerty] = {LED_LAYOUT(
+        // clang-format off
+        BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, GREEN,           GREEN, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, RED  , BLACK,
+        BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,                         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, BLACK, BLACK, BLACK,         BLACK,     BLACK,             BLACK, BLACK, BLACK, BLACK, BLACK,
+                                    PURPL, BLACK, BLACK,      BLACK, BLACK, BLACK
+        // clang-format on
+        )},
+      [DK] = {LED_LAYOUT_ALL(BLACK)},
+    [Sym]    = {LED_LAYOUT_ALL(BLACK)},
+    [Media]  = {LED_LAYOUT(
         // clang-format off
         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK,  RED , ORANG,
         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
@@ -67,12 +76,12 @@ const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
                                     BLACK, BLACK, BLACK,      BLACK, BLACK, BLACK
         // clang-format on
         )},
-    [Fn] = {LED_LAYOUT(
+     [Fn] = {LED_LAYOUT(
         // clang-format off
         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
-        BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
-        BLACK, BLACK, WHITE, BLACK, BLACK, BLACK, BLACK,           BLACK, RED, BLACK, BLACK, BLACK, BLACK, BLACK,
-        BLACK, BLACK, WHITE, BLACK, BLACK, BLACK,                         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, WHITE, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, RED  , WHITE, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, BLACK, RED  , BLACK, BLACK,                         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
         BLACK, BLACK, BLACK, BLACK, BLACK,         BLACK,     BLACK,             BLACK, BLACK, BLACK, BLACK, BLACK,
                                     BLACK, BLACK, BLACK,      BLACK, BLACK, BLACK
         // clang-format on
@@ -99,7 +108,11 @@ void set_layer_color(int layer) {
     if (IS_LAYER_ON(Fn)) {
         RGB   rgb = autocorrect_is_enabled() ? hsv_to_rgb((HSV)DEPAREN(GREEN)) : hsv_to_rgb((HSV)DEPAREN(RED));
         float f   = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
-        rgb_matrix_set_color(63, f * rgb.r, f * rgb.g, f * rgb.b);
+        rgb_matrix_set_color(7, f * rgb.r, f * rgb.g, f * rgb.b);
+
+        rgb = get_autoshift_state() ? hsv_to_rgb((HSV)DEPAREN(GREEN)) : hsv_to_rgb((HSV)DEPAREN(RED));
+        f   = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
+        rgb_matrix_set_color(18, f * rgb.r, f * rgb.g, f * rgb.b);
     }
 }
 
@@ -172,4 +185,20 @@ static void set_led_for_input_mode(uint8_t input_mode) {
 
 void unicode_input_mode_set_user(uint8_t input_mode) {
     set_led_for_input_mode(input_mode);
+}
+
+void housekeeping_task_user(void) {
+    if (!IS_LAYER_ON(Qwerty)) {
+        if (!is_transport_connected()) {
+            layer_move(Qwerty);
+        }
+    }
+}
+
+void suspend_power_down_user(void) {
+    // code will run multiple times while keyboard is suspended
+}
+
+void suspend_wakeup_init_user(void) {
+    // code will run on keyboard wakeup
 }

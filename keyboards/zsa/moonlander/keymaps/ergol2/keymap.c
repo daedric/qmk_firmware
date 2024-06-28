@@ -8,6 +8,7 @@
 
 enum layers {
     Base,
+    Qwerty,
     DK,
     Sym,
     Media,
@@ -16,6 +17,12 @@ enum layers {
 
 enum custom_keycodes {
     _FIRST = SAFE_RANGE,
+    CKC_LMOVE_Base,
+    CKC_LMOVE_Qwerty,
+    CKC_LMOVE_DK,
+    CKC_LMOVE_Sym,
+    CKC_LMOVE_Media,
+    CKC_LMOVE_Fn,
     Base_EKC_1,
     Base_EKC_2,
     Base_EKC_3,
@@ -48,7 +55,7 @@ enum custom_keycodes {
 
 #define DK_EKC_1 UP(DOUBLE_LOW_9_QUOTATION_MARK, SINGLE_LOW_9_QUOTATION_MARK)
 #define DK_EKC_2 UP(LEFT_DOUBLE_QUOTATION_MARK, LEFT_SINGLE_QUOTATION_MARK)
-#define DK_EKC_3 UP(DOUBLE_HIGH_REVERSED_9_QUOTATION_MARK, RIGHT_SINGLE_QUOTATION_MARK)
+#define DK_EKC_3 UP(RIGHT_DOUBLE_QUOTATION_MARK, RIGHT_SINGLE_QUOTATION_MARK)
 #define DK_EKC_4 UM(CENT_SIGN)
 #define DK_EKC_5 UM(PER_MILLE_SIGN)
 #define DK_EKC_8 UM(SECTION_SIGN)
@@ -163,7 +170,7 @@ enum unicode_names {
     SUBSCRIPT_TWO,
     SUPERSCRIPT_TWO,
     RIGHT_POINTING_DOUBLE_ANGLE_QUOTATION_MARK,
-    DOUBLE_HIGH_REVERSED_9_QUOTATION_MARK,
+    RIGHT_DOUBLE_QUOTATION_MARK,
     RIGHT_SINGLE_QUOTATION_MARK,
     SUBSCRIPT_THREE,
     SUPERSCRIPT_THREE,
@@ -263,7 +270,7 @@ const uint32_t PROGMEM unicode_map[] = {
     [SUBSCRIPT_TWO]                              = 0x2082 /* ₂ */,
     [SUPERSCRIPT_TWO]                            = 0x00b2 /* ² */,
     [RIGHT_POINTING_DOUBLE_ANGLE_QUOTATION_MARK] = 0x00bb /* » */,
-    [DOUBLE_HIGH_REVERSED_9_QUOTATION_MARK]      = 0x201f /* ‟ */,
+    [RIGHT_DOUBLE_QUOTATION_MARK]                = 0x201d /* ” */,
     [RIGHT_SINGLE_QUOTATION_MARK]                = 0x2019 /* ’ */,
     [SUBSCRIPT_THREE]                            = 0x2083 /* ₃ */,
     [SUPERSCRIPT_THREE]                          = 0x00b3 /* ³ */,
@@ -296,7 +303,6 @@ const key_override_t Base_EKC_8    = ko_make_with_layers(MOD_MASK_SHIFT, KC_8, K
 const key_override_t Base_EKC_9    = ko_make_with_layers(MOD_MASK_SHIFT, KC_9, KC_HASH, (1 << Base));
 const key_override_t Base_EKC_0    = ko_make_with_layers(MOD_MASK_SHIFT, KC_0, KC_AT, (1 << Base));
 const key_override_t Base_EKC_DK   = ko_make_with_layers(MOD_MASK_SHIFT, OSL(DK), KC_EXLM, (1 << Base));
-const key_override_t Base_EKC_U    = ko_make_with_layers(MOD_MASK_SHIFT, LT(Media, KC_U), KC_U, (1 << Base));
 const key_override_t Base_EKC_MNS  = ko_make_with_layers(MOD_MASK_SHIFT, KC_MINS, KC_QUES, (1 << Base));
 const key_override_t Base_EKC_DOT  = ko_make_with_layers(MOD_MASK_SHIFT, KC_DOT, KC_COLN, (1 << Base));
 const key_override_t Base_EKC_COMM = ko_make_with_layers(MOD_MASK_SHIFT, KC_COMM, KC_SCLN, (1 << Base));
@@ -312,19 +318,31 @@ const key_override_t Sym_EKC_COMM  = ko_make_with_layers(MOD_MASK_SHIFT, KC_COLN
 const key_override_t Sym_EKC_SPC   = ko_make_with_layers(MOD_MASK_SHIFT, KC_SPC, KC_SPC, (1 << Sym));
 
 const key_override_t **key_overrides = (const key_override_t *[]){
-    &Base_EKC_4, &Base_EKC_5, &Base_EKC_6, &Base_EKC_7, &Base_EKC_8, &Base_EKC_9, &Base_EKC_0, &Base_EKC_DK, &Base_EKC_U, &Base_EKC_MNS, &Base_EKC_DOT, &Base_EKC_COMM, &DK_EKC_D, &DK_EKC_L, &DK_EKC_R, &Sym_EKC_P, &Sym_EKC_M, &Sym_EKC_S, &Sym_EKC_E, &Sym_EKC_B, &Sym_EKC_COMM, &Sym_EKC_SPC, NULL,
+    &Base_EKC_4, &Base_EKC_5, &Base_EKC_6, &Base_EKC_7, &Base_EKC_8, &Base_EKC_9, &Base_EKC_0, &Base_EKC_DK, &Base_EKC_MNS, &Base_EKC_DOT, &Base_EKC_COMM, &DK_EKC_D, &DK_EKC_L, &DK_EKC_R, &Sym_EKC_P, &Sym_EKC_M, &Sym_EKC_S, &Sym_EKC_E, &Sym_EKC_B, &Sym_EKC_COMM, &Sym_EKC_SPC, NULL,
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [Base] = LAYOUT(
         // clang-format off
 
-            KC_ESC     ,   Base_EKC_1   ,   Base_EKC_2   ,   Base_EKC_3   ,      KC_4      ,      KC_5      , LT(Fn, KC_ESC) ,           LT(Fn, KC_ESC) ,      KC_6      ,      KC_7      ,      KC_8      ,      KC_9      ,      KC_0      ,     QK_BOOT    ,
-            KC_TAB     ,      KC_Q      ,      KC_C      ,      KC_O      ,      KC_P      ,      KC_W      ,     KC_DEL     ,               KC_BSPC    ,      KC_J      ,      KC_M      ,      KC_D      ,     OSL(DK)    ,      KC_Y      ,     _______    ,
-            KC_GRV     ,      KC_A      ,      KC_S      ,      KC_E      ,      KC_N      ,      KC_F      ,     _______    ,               _______    ,      KC_L      ,      KC_R      ,      KC_T      ,      KC_I      , LT(Media, KC_U),     _______    ,
-            KC_LSFT    ,      KC_Z      ,      KC_X      ,     KC_MINS    ,      KC_V      ,      KC_B      ,                       KC_DOT     ,      KC_H      ,      KC_G      ,     KC_COMM    ,      KC_K      ,     KC_RSFT    ,
-            KC_LCTL    ,     _______    ,     KC_LEFT    ,    KC_RIGHT    ,     KC_LGUI    ,             _______    ,         _______    ,            KC_UP     ,     KC_DOWN    ,     _______    ,     _______    ,     _______    ,
-                                MO(Sym)    ,     _______    ,     _______    ,         _______    ,    KC_ENTER    ,  Base_EKC_SPC
+               KC_ESC       ,      Base_EKC_1     ,      Base_EKC_2     ,      Base_EKC_3     ,         KC_4        ,         KC_5        ,    LT(Fn, KC_ESC)   ,              LT(Fn, KC_ESC)   ,         KC_6        ,         KC_7        ,         KC_8        ,         KC_9        ,         KC_0        ,        KC_INS       ,
+               KC_TAB       ,         KC_Q        ,         KC_C        ,         KC_O        ,         KC_P        ,         KC_W        ,        KC_DEL       ,                 KC_BSPC       ,         KC_J        ,         KC_M        ,         KC_D        ,       OSL(DK)       ,         KC_Y        ,       _______       ,
+               KC_GRV       ,         KC_A        ,         KC_S        ,         KC_E        ,         KC_N        ,         KC_F        ,       _______       ,                 _______       ,         KC_L        ,         KC_R        ,         KC_T        ,         KC_I        ,   LT(Media, KC_U)   ,       _______       ,
+              KC_LSFT       ,         KC_Z        ,         KC_X        ,       KC_MINS       ,         KC_V        ,         KC_B        ,                          KC_DOT       ,         KC_H        ,         KC_G        ,       KC_COMM       ,         KC_K        ,       KC_RSFT       ,
+              KC_LCTL       ,       _______       ,       KC_LEFT       ,       KC_RIGHT      ,       KC_LGUI       ,              LGUI(KC_P)     ,     LGUI(LSFT(KC_SPACE)),              KC_UP        ,       KC_DOWN       ,       _______       ,       _______       ,   CKC_LMOVE_Qwerty  ,
+                                  MO(Sym)       ,       _______       ,      LGUI(KC_R)     ,           KC_LALT       ,       KC_ENTER      ,     Base_EKC_SPC
+
+        // clang-format on
+        ),
+    [Qwerty] = LAYOUT(
+        // clang-format off
+
+              KC_ESC      ,        KC_1       ,        KC_2       ,        KC_3       ,        KC_4       ,        KC_5       , LT(Fn,       KC_ESC      ),           LT(Fn,       KC_ESC      ),        KC_6       ,        KC_7       ,        KC_8       ,        KC_9       ,        KC_0       ,       KC_INS      ,
+              KC_TAB      ,        KC_Q       ,        KC_W       ,        KC_E       ,        KC_R       ,        KC_T       ,       KC_DEL      ,                KC_BSPC      ,        KC_Y       ,        KC_U       ,        KC_I       ,        KC_O       ,        KC_P       ,      KC_BSLS      ,
+              KC_GRV      ,        KC_A       ,        KC_S       ,        KC_D       ,        KC_F       ,        KC_G       ,       KC_EQL      ,                KC_MINS      ,        KC_H       ,        KC_J       ,        KC_K       ,        KC_L       , LT(Media,      KC_SCLN      ),      KC_QUOT      ,
+             KC_LSFT      ,        KC_Z       ,        KC_X       ,        KC_C       ,        KC_V       ,        KC_B       ,                          KC_N       ,        KC_M       ,      KC_COMM      ,       KC_DOT      ,      KC_SLSH      ,      KC_RSFT      ,
+             KC_LCTL      ,      _______      ,      KC_LEFT      ,      KC_RIGHT     ,      KC_LGUI      ,             LGUI(KC_P)    ,     LGUI(LSFT(KC_SPC)),             KC_UP       ,      KC_DOWN      ,      KC_LBRC      ,      KC_RBRC      ,   CKC_LMOVE_Base  ,
+                                 _______      ,      _______      ,     LGUI(KC_R)    ,          KC_LALT      ,      KC_ENTER     ,       KC_SPC
 
         // clang-format on
         ),
@@ -368,9 +386,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         // clang-format off
 
          KC_F1 ,  KC_F2 ,  KC_F3 ,  KC_F4 ,  KC_F5 ,  KC_F6 , _______,           _______,  KC_F7 ,  KC_F8 ,  KC_F9 , KC_F10 , KC_F11 , KC_F12 ,
-        _______, _______, _______, _______, _______, _______, _______,           _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, RGB_VAI, _______, _______, _______, _______,           _______, AC_TOGG, _______, _______, _______, _______, _______,
-        _______, _______, RGB_VAD, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+        _______, _______, RGB_VAI, _______, _______, _______, _______,           _______, _______, _______, _______, _______, _______, _______,
+        _______, AC_TOGG, RGB_VAD, _______, _______, _______, _______,           _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, AS_TOGG, _______, _______,                   _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______,         _______,     _______,       _______, _______, _______, _______, _______,
                             _______, _______, _______,     _______, _______, _______
 
@@ -386,6 +404,36 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         default:
             return true;
+
+        case CKC_LMOVE_Base:
+            layer_move(Base);
+            return false;
+            break;
+
+        case CKC_LMOVE_Qwerty:
+            layer_move(Qwerty);
+            return false;
+            break;
+
+        case CKC_LMOVE_DK:
+            layer_move(DK);
+            return false;
+            break;
+
+        case CKC_LMOVE_Sym:
+            layer_move(Sym);
+            return false;
+            break;
+
+        case CKC_LMOVE_Media:
+            layer_move(Media);
+            return false;
+            break;
+
+        case CKC_LMOVE_Fn:
+            layer_move(Fn);
+            return false;
+            break;
 
         case Base_EKC_1:
             kc      = KC_1;
@@ -546,4 +594,647 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     return true;
+}
+
+static bool _autoshift_press_user(uint16_t keycode, bool shifted, keyrecord_t *record) {
+    if (IS_LAYER_ON(Qwerty)) return false;
+
+    if (IS_LAYER_ON(Media)) return false;
+
+    if (IS_LAYER_ON(Fn)) return false;
+
+    bool     tap_unicode = false;
+    uint16_t kc;
+    uint32_t skc_or_skc_idx;
+
+    if (IS_LAYER_ON(Base)) {
+        switch (keycode) {
+            default:
+                return false;
+
+            case KC_4:
+                kc             = KC_4;
+                skc_or_skc_idx = KC_DLR;
+                break;
+
+            case KC_5:
+                kc             = KC_5;
+                skc_or_skc_idx = KC_PERC;
+                break;
+
+            case KC_6:
+                kc             = KC_6;
+                skc_or_skc_idx = KC_CIRC;
+                break;
+
+            case KC_7:
+                kc             = KC_7;
+                skc_or_skc_idx = KC_AMPR;
+                break;
+
+            case KC_8:
+                kc             = KC_8;
+                skc_or_skc_idx = KC_ASTR;
+                break;
+
+            case KC_9:
+                kc             = KC_9;
+                skc_or_skc_idx = KC_HASH;
+                break;
+
+            case KC_0:
+                kc             = KC_0;
+                skc_or_skc_idx = KC_AT;
+                break;
+
+            case OSL(DK):
+                kc             = OSL(DK);
+                skc_or_skc_idx = KC_EXLM;
+                break;
+
+            case KC_MINS:
+                kc             = KC_MINS;
+                skc_or_skc_idx = KC_QUES;
+                break;
+
+            case KC_DOT:
+                kc             = KC_DOT;
+                skc_or_skc_idx = KC_COLN;
+                break;
+
+            case KC_COMM:
+                kc             = KC_COMM;
+                skc_or_skc_idx = KC_SCLN;
+                break;
+
+            case Base_EKC_1:
+                kc             = KC_1;
+                skc_or_skc_idx = EURO_SIGN;
+                tap_unicode    = true;
+                break;
+
+            case Base_EKC_2:
+                kc             = KC_2;
+                skc_or_skc_idx = LEFT_POINTING_DOUBLE_ANGLE_QUOTATION_MARK;
+                tap_unicode    = true;
+                break;
+
+            case Base_EKC_3:
+                kc             = KC_3;
+                skc_or_skc_idx = RIGHT_POINTING_DOUBLE_ANGLE_QUOTATION_MARK;
+                tap_unicode    = true;
+                break;
+
+            case Base_EKC_SPC:
+                kc             = KC_SPC;
+                skc_or_skc_idx = NARROW_NO_BREAK_SPACE;
+                tap_unicode    = true;
+                break;
+        }
+    }
+
+    if (IS_LAYER_ON(DK)) {
+        switch (keycode) {
+            default:
+                return false;
+
+            case KC_UNDS:
+                kc             = KC_UNDS;
+                skc_or_skc_idx = KC_UNDS;
+                break;
+
+            case KC_LPRN:
+                kc             = KC_LPRN;
+                skc_or_skc_idx = KC_LPRN;
+                break;
+
+            case KC_RPRN:
+                kc             = KC_RPRN;
+                skc_or_skc_idx = KC_RPRN;
+                break;
+        }
+    }
+
+    if (IS_LAYER_ON(Sym)) {
+        switch (keycode) {
+            default:
+                return false;
+
+            case KC_DLR:
+                kc             = KC_DLR;
+                skc_or_skc_idx = KC_DLR;
+                break;
+
+            case KC_AMPR:
+                kc             = KC_AMPR;
+                skc_or_skc_idx = KC_AMPR;
+                break;
+
+            case KC_LPRN:
+                kc             = KC_LPRN;
+                skc_or_skc_idx = KC_LPRN;
+                break;
+
+            case KC_RPRN:
+                kc             = KC_RPRN;
+                skc_or_skc_idx = KC_RPRN;
+                break;
+
+            case KC_HASH:
+                kc             = KC_HASH;
+                skc_or_skc_idx = KC_HASH;
+                break;
+
+            case KC_COLN:
+                kc             = KC_COLN;
+                skc_or_skc_idx = KC_COLN;
+                break;
+
+            case KC_SPC:
+                kc             = KC_SPC;
+                skc_or_skc_idx = KC_SPC;
+                break;
+
+            case Sym_EKC_Q:
+                kc             = KC_CIRC;
+                skc_or_skc_idx = COMBINING_CIRCUMFLEX_ACCENT;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_C:
+                kc             = KC_LABK;
+                skc_or_skc_idx = LESS_THAN_OR_EQUAL_TO;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_O:
+                kc             = KC_RABK;
+                skc_or_skc_idx = GREATER_THAN_OR_EQUAL_TO;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_W:
+                kc             = KC_PERC;
+                skc_or_skc_idx = PER_MILLE_SIGN;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_J:
+                kc             = KC_AT;
+                skc_or_skc_idx = COMBINING_RING_ABOVE;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_D:
+                kc             = KC_ASTR;
+                skc_or_skc_idx = MULTIPLICATION_SIGN;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_DK:
+                kc             = KC_QUOT;
+                skc_or_skc_idx = COMBINING_ACUTE_ACCENT;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_Y:
+                kc             = KC_GRV;
+                skc_or_skc_idx = COMBINING_GRAVE_ACCENT;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_A:
+                kc             = KC_LCBR;
+                skc_or_skc_idx = COMBINING_CARON;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_N:
+                kc             = KC_RCBR;
+                skc_or_skc_idx = COMBINING_DOT_ABOVE;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_F:
+                kc             = KC_EQL;
+                skc_or_skc_idx = NOT_EQUAL_TO;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_L:
+                kc             = KC_BSLS;
+                skc_or_skc_idx = COMBINING_LONG_SOLIDUS_OVERLAY;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_R:
+                kc             = KC_PLUS;
+                skc_or_skc_idx = PLUS_SIGN_ABOVE_EQUALS_SIGN;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_T:
+                kc             = KC_MINS;
+                skc_or_skc_idx = COMBINING_MACRON;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_I:
+                kc             = KC_SLSH;
+                skc_or_skc_idx = DIVISION_SIGN;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_U:
+                kc             = KC_DQUO;
+                skc_or_skc_idx = COMBINING_DOUBLE_ACUTE_ACCENT;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_Z:
+                kc             = KC_TILD;
+                skc_or_skc_idx = COMBINING_TILDE;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_X:
+                kc             = KC_LBRC;
+                skc_or_skc_idx = COMBINING_COMMA_BELOW;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_MNS:
+                kc             = KC_RBRC;
+                skc_or_skc_idx = COMBINING_OGONEK;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_V:
+                kc             = KC_UNDS;
+                skc_or_skc_idx = EN_DASH;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_DOT:
+                kc             = KC_PIPE;
+                skc_or_skc_idx = BROKEN_BAR;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_H:
+                kc             = KC_EXLM;
+                skc_or_skc_idx = NOT_SIGN;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_G:
+                kc             = KC_SCLN;
+                skc_or_skc_idx = COMBINING_TURNED_COMMA_ABOVE;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_K:
+                kc             = KC_QUES;
+                skc_or_skc_idx = COMBINING_BREVE;
+                tap_unicode    = true;
+                break;
+        }
+    }
+
+    if (shifted && tap_unicode) {
+        uint8_t temp_mod = get_mods();
+        clear_mods();
+        uint32_t skc = unicodemap_get_code_point(skc_or_skc_idx);
+        register_unicode(skc);
+        set_mods(temp_mod);
+    } else {
+        register_code16(!shifted ? kc : skc_or_skc_idx);
+    }
+
+    return true;
+}
+void autoshift_press_user(uint16_t keycode, bool shifted, keyrecord_t *record) {
+    if (_autoshift_press_user(keycode, shifted, record)) return;
+    if (shifted) {
+        add_weak_mods(MOD_BIT(KC_LSFT));
+    }
+    // & 0xFF gets the Tap key for Tap Holds, required when using Retro Shift
+    register_code16((IS_RETRO(keycode)) ? keycode & 0xFF : keycode);
+}
+
+static bool _autoshift_release_user(uint16_t keycode, bool shifted, keyrecord_t *record) {
+    if (IS_LAYER_ON(Qwerty)) return false;
+
+    if (IS_LAYER_ON(Media)) return false;
+
+    if (IS_LAYER_ON(Fn)) return false;
+
+    bool     tap_unicode = false;
+    uint16_t kc;
+    uint32_t skc_or_skc_idx;
+
+    if (IS_LAYER_ON(Base)) {
+        switch (keycode) {
+            default:
+                return false;
+
+            case KC_4:
+                kc             = KC_4;
+                skc_or_skc_idx = KC_DLR;
+                break;
+
+            case KC_5:
+                kc             = KC_5;
+                skc_or_skc_idx = KC_PERC;
+                break;
+
+            case KC_6:
+                kc             = KC_6;
+                skc_or_skc_idx = KC_CIRC;
+                break;
+
+            case KC_7:
+                kc             = KC_7;
+                skc_or_skc_idx = KC_AMPR;
+                break;
+
+            case KC_8:
+                kc             = KC_8;
+                skc_or_skc_idx = KC_ASTR;
+                break;
+
+            case KC_9:
+                kc             = KC_9;
+                skc_or_skc_idx = KC_HASH;
+                break;
+
+            case KC_0:
+                kc             = KC_0;
+                skc_or_skc_idx = KC_AT;
+                break;
+
+            case OSL(DK):
+                kc             = OSL(DK);
+                skc_or_skc_idx = KC_EXLM;
+                break;
+
+            case KC_MINS:
+                kc             = KC_MINS;
+                skc_or_skc_idx = KC_QUES;
+                break;
+
+            case KC_DOT:
+                kc             = KC_DOT;
+                skc_or_skc_idx = KC_COLN;
+                break;
+
+            case KC_COMM:
+                kc             = KC_COMM;
+                skc_or_skc_idx = KC_SCLN;
+                break;
+
+            case Base_EKC_1:
+                kc             = KC_1;
+                skc_or_skc_idx = EURO_SIGN;
+                tap_unicode    = true;
+                break;
+
+            case Base_EKC_2:
+                kc             = KC_2;
+                skc_or_skc_idx = LEFT_POINTING_DOUBLE_ANGLE_QUOTATION_MARK;
+                tap_unicode    = true;
+                break;
+
+            case Base_EKC_3:
+                kc             = KC_3;
+                skc_or_skc_idx = RIGHT_POINTING_DOUBLE_ANGLE_QUOTATION_MARK;
+                tap_unicode    = true;
+                break;
+
+            case Base_EKC_SPC:
+                kc             = KC_SPC;
+                skc_or_skc_idx = NARROW_NO_BREAK_SPACE;
+                tap_unicode    = true;
+                break;
+        }
+    }
+
+    if (IS_LAYER_ON(DK)) {
+        switch (keycode) {
+            default:
+                return false;
+
+            case KC_UNDS:
+                kc             = KC_UNDS;
+                skc_or_skc_idx = KC_UNDS;
+                break;
+
+            case KC_LPRN:
+                kc             = KC_LPRN;
+                skc_or_skc_idx = KC_LPRN;
+                break;
+
+            case KC_RPRN:
+                kc             = KC_RPRN;
+                skc_or_skc_idx = KC_RPRN;
+                break;
+        }
+    }
+
+    if (IS_LAYER_ON(Sym)) {
+        switch (keycode) {
+            default:
+                return false;
+
+            case KC_DLR:
+                kc             = KC_DLR;
+                skc_or_skc_idx = KC_DLR;
+                break;
+
+            case KC_AMPR:
+                kc             = KC_AMPR;
+                skc_or_skc_idx = KC_AMPR;
+                break;
+
+            case KC_LPRN:
+                kc             = KC_LPRN;
+                skc_or_skc_idx = KC_LPRN;
+                break;
+
+            case KC_RPRN:
+                kc             = KC_RPRN;
+                skc_or_skc_idx = KC_RPRN;
+                break;
+
+            case KC_HASH:
+                kc             = KC_HASH;
+                skc_or_skc_idx = KC_HASH;
+                break;
+
+            case KC_COLN:
+                kc             = KC_COLN;
+                skc_or_skc_idx = KC_COLN;
+                break;
+
+            case KC_SPC:
+                kc             = KC_SPC;
+                skc_or_skc_idx = KC_SPC;
+                break;
+
+            case Sym_EKC_Q:
+                kc             = KC_CIRC;
+                skc_or_skc_idx = COMBINING_CIRCUMFLEX_ACCENT;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_C:
+                kc             = KC_LABK;
+                skc_or_skc_idx = LESS_THAN_OR_EQUAL_TO;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_O:
+                kc             = KC_RABK;
+                skc_or_skc_idx = GREATER_THAN_OR_EQUAL_TO;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_W:
+                kc             = KC_PERC;
+                skc_or_skc_idx = PER_MILLE_SIGN;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_J:
+                kc             = KC_AT;
+                skc_or_skc_idx = COMBINING_RING_ABOVE;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_D:
+                kc             = KC_ASTR;
+                skc_or_skc_idx = MULTIPLICATION_SIGN;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_DK:
+                kc             = KC_QUOT;
+                skc_or_skc_idx = COMBINING_ACUTE_ACCENT;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_Y:
+                kc             = KC_GRV;
+                skc_or_skc_idx = COMBINING_GRAVE_ACCENT;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_A:
+                kc             = KC_LCBR;
+                skc_or_skc_idx = COMBINING_CARON;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_N:
+                kc             = KC_RCBR;
+                skc_or_skc_idx = COMBINING_DOT_ABOVE;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_F:
+                kc             = KC_EQL;
+                skc_or_skc_idx = NOT_EQUAL_TO;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_L:
+                kc             = KC_BSLS;
+                skc_or_skc_idx = COMBINING_LONG_SOLIDUS_OVERLAY;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_R:
+                kc             = KC_PLUS;
+                skc_or_skc_idx = PLUS_SIGN_ABOVE_EQUALS_SIGN;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_T:
+                kc             = KC_MINS;
+                skc_or_skc_idx = COMBINING_MACRON;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_I:
+                kc             = KC_SLSH;
+                skc_or_skc_idx = DIVISION_SIGN;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_U:
+                kc             = KC_DQUO;
+                skc_or_skc_idx = COMBINING_DOUBLE_ACUTE_ACCENT;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_Z:
+                kc             = KC_TILD;
+                skc_or_skc_idx = COMBINING_TILDE;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_X:
+                kc             = KC_LBRC;
+                skc_or_skc_idx = COMBINING_COMMA_BELOW;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_MNS:
+                kc             = KC_RBRC;
+                skc_or_skc_idx = COMBINING_OGONEK;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_V:
+                kc             = KC_UNDS;
+                skc_or_skc_idx = EN_DASH;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_DOT:
+                kc             = KC_PIPE;
+                skc_or_skc_idx = BROKEN_BAR;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_H:
+                kc             = KC_EXLM;
+                skc_or_skc_idx = NOT_SIGN;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_G:
+                kc             = KC_SCLN;
+                skc_or_skc_idx = COMBINING_TURNED_COMMA_ABOVE;
+                tap_unicode    = true;
+                break;
+
+            case Sym_EKC_K:
+                kc             = KC_QUES;
+                skc_or_skc_idx = COMBINING_BREVE;
+                tap_unicode    = true;
+                break;
+        }
+    }
+
+    if (shifted && tap_unicode) {
+        return true;
+    }
+
+    unregister_code16(!shifted ? kc : skc_or_skc_idx);
+    return true;
+}
+void autoshift_release_user(uint16_t keycode, bool shifted, keyrecord_t *record) {
+    if (_autoshift_release_user(keycode, shifted, record)) return;
+    unregister_code16((IS_RETRO(keycode)) ? keycode & 0xFF : keycode);
 }

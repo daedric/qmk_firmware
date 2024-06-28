@@ -10,11 +10,12 @@ import re
 
 class Mode(Enum):
     Base = 0
-    DK = 1
-    Sym = 2
+    Qwerty = 1
+    DK = 2
+    Sym = 3
     # perso
-    Media = 3
-    Fn = 4
+    Media = 4
+    Fn = 5
 
 
 class ShiftMode(Enum):
@@ -113,6 +114,8 @@ class KeyCode:
 def get_shift_mod(kc: KeyCode, skc: KeyCode) -> ShiftMode:
     if kc.is_basic:
         if skc is None or kc == skc:
+            return ShiftMode.Default
+        if kc.has_function and kc.raw_keycode == skc.raw_keycode:
             return ShiftMode.Default
         if skc.is_basic:
             return ShiftMode.Override
@@ -301,7 +304,7 @@ ergol_keys = {
 
         "EKC_1": Key(base="KC_1", shifted=0x20AC, dk_base=0x201E, dk_shifted=0x201A, sym_base=0x2081, sym_shifted=0x00B9),
         "EKC_2": Key(base="KC_2", shifted=0x00AB, dk_base=0x201C, dk_shifted=0x2018, sym_base=0x2082, sym_shifted=0x00B2),
-        "EKC_3": Key(base="KC_3", shifted=0x00BB, dk_base=0x201F, dk_shifted=0x2019, sym_base=0x2083, sym_shifted=0x00B3),
+        "EKC_3": Key(base="KC_3", shifted=0x00BB, dk_base=0x201D, dk_shifted=0x2019, sym_base=0x2083, sym_shifted=0x00B3),
         "EKC_4": Key(base="KC_4", shifted="KC_DLR", dk_base=0x00A2, dk_shifted="KC_TRNS", sym_base=0x2084, sym_shifted=0x2074),
         "EKC_5": Key(base="KC_5", shifted="KC_PERC", dk_base=0x2030, dk_shifted="KC_TRNS", sym_base=0x2085, sym_shifted=0x2075),
         "EKC_6": Key(base="KC_6", shifted="KC_CIRC", dk_base="KC_TRNS", dk_shifted="KC_TRNS", sym_base=0x2086, sym_shifted=0x2076),
@@ -354,7 +357,7 @@ ergol_keys = {
 
         "EKC_1": Key(base="FR_1", shifted=0x20AC, dk_base=0x201E, dk_shifted=0x201A, sym_base=0x2081, sym_shifted=0x00B9),
         "EKC_2": Key(base="FR_2", shifted=0x00AB, dk_base=0x201C, dk_shifted=0x2018, sym_base=0x2082, sym_shifted=0x00B2),
-        "EKC_3": Key(base="FR_3", shifted=0x00BB, dk_base=0x201F, dk_shifted=0x2019, sym_base=0x2083, sym_shifted=0x00B3),
+        "EKC_3": Key(base="FR_3", shifted=0x00BB, dk_base=0x201D, dk_shifted=0x2019, sym_base=0x2083, sym_shifted=0x00B3),
         "EKC_4": Key(base="FR_4", shifted="FR_DLR", dk_base=0x00A2, dk_shifted="KC_TRNS", sym_base=0x2084, sym_shifted=0x2074),
         "EKC_5": Key(base="FR_5", shifted="FR_PERC", dk_base=0x2030, dk_shifted="KC_TRNS", sym_base=0x2085, sym_shifted=0x2075),
         "EKC_6": Key(base="FR_6", shifted=0x005E, dk_base="KC_TRNS", dk_shifted="KC_TRNS", sym_base=0x2086, sym_shifted=0x2076),
@@ -400,7 +403,7 @@ class Gen:
     }};
 
     {custom_process}
-
+    {custom_autoshift}
     """
 
     def __init__(self, host, kms: "Keymaps"):
@@ -551,9 +554,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {{
                 skc_idx = {skc_name};
                 break;
         """
+        custom_keycode_layer_move_tpl = """
+            case {name}:
+                layer_move({layer});
+                return false;
+                break;
+        """
 
         self.custom_keycodes = []
         self.cases = []
+
+        for m in Mode:
+            ckc_name = f"CKC_LMOVE_{m.name}"
+            self.custom_keycodes.append(ckc_name)
+            self.cases.append(
+                custom_keycode_layer_move_tpl.format(name=ckc_name, layer=m.name)
+            )
+
         for _, ckcs in self.custom_keys.items():
             for name, (kc, skc) in ckcs.items():
                 self.custom_keycodes.append(name)
@@ -564,6 +581,143 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {{
                 )
 
         self.custom_process = custom_process_tpl.format(cases="\n".join(self.cases))
+
+    def _gen_custom_autoshift(self):
+        autoshift_guard = """
+            if (IS_LAYER_ON({layer})) return false;
+        """
+        autoshift_press_user_tpl = """
+        static bool _autoshift_press_user(uint16_t keycode, bool shifted, keyrecord_t *record) {{
+            {guard}
+
+            bool tap_unicode = false;
+            uint16_t kc;
+            uint32_t skc_or_skc_idx;
+
+            {switch}
+
+            if (shifted && tap_unicode) {{
+                uint8_t temp_mod = get_mods();
+                clear_mods();
+                uint32_t skc = unicodemap_get_code_point(skc_or_skc_idx);
+                register_unicode(skc);
+                set_mods(temp_mod);
+            }} else {{
+                register_code16(!shifted ? kc : skc_or_skc_idx);
+            }}
+
+            return true;
+        }}
+        void autoshift_press_user(uint16_t keycode, bool shifted, keyrecord_t *record) {{
+            if (_autoshift_press_user(keycode, shifted, record)) return;
+            if (shifted) {{
+                add_weak_mods(MOD_BIT(KC_LSFT));
+            }}
+            // & 0xFF gets the Tap key for Tap Holds, required when using Retro Shift
+            register_code16((IS_RETRO(keycode)) ? keycode & 0xFF : keycode);
+        }}
+        """
+        autoshift_press_user_switch_tpl = """
+            if (IS_LAYER_ON({layer})) {{
+                switch(keycode) {{
+                    default:
+                        return false;
+                    {cases}
+                }}
+            }}
+        """
+        autoshift_user_case_tpl = """
+        case {kc}:
+            kc = {kc};
+            skc_or_skc_idx = {skc};
+            break;
+        """
+        autoshift_user_case_unicode_tpl = """
+        case {ckc}:
+            kc = {kc};
+            skc_or_skc_idx = {skc};
+            tap_unicode = true;
+            break;
+        """
+
+        autoshift_release_user_tpl = """
+        static bool _autoshift_release_user(uint16_t keycode, bool shifted, keyrecord_t *record) {{
+            {guard}
+
+            bool tap_unicode = false;
+            uint16_t kc;
+            uint32_t skc_or_skc_idx;
+
+            {switch}
+
+            if (shifted && tap_unicode) {{
+                    return true;
+            }}
+
+            unregister_code16(!shifted ? kc : skc_or_skc_idx);
+            return true;
+        }}
+        void autoshift_release_user(uint16_t keycode, bool shifted, keyrecord_t *record) {{
+            if (_autoshift_release_user(keycode, shifted, record)) return;
+            unregister_code16((IS_RETRO(keycode)) ? keycode & 0xFF : keycode);
+        }}
+        """
+
+        cases_per_mode = defaultdict(list)
+        switches_press = []
+        switches_relea = []
+        for m, ovrs in self.override.items():
+            for _, ovr in ovrs.items():
+                cases_per_mode[m].append(
+                    autoshift_user_case_tpl.format(
+                        kc=ovr.kc,
+                        skc=ovr.skc,
+                    )
+                )
+
+        # does not work, probably because those keys are handled by the
+        # process_record_user and we return false within it.
+        # It is likely that the fact that we do a register_unicode there
+        # make it impossible to have autoshift working.
+        # I wonder whether we could re-emit the custom keycode
+        # and handle it in the function
+        # Maybe autoshift + override could be replaced with: https://getreuer.info/posts/keyboards/custom-shift-keys/index.html
+        for m, ckcs in self.custom_keys.items():
+            for name, (kc, skc) in ckcs.items():
+                cases_per_mode[m].append(
+                    autoshift_user_case_unicode_tpl.format(
+                        ckc=name, kc=kc, skc=self.unicode_to_idx[skc]
+                    )
+                )
+
+        mode_without_autoshift = [m for m in Mode]
+        for m, cases in cases_per_mode.items():
+            mode_without_autoshift.remove(m)
+            switches_press.append(
+                autoshift_press_user_switch_tpl.format(
+                    layer=m.name, cases="\n".join(cases)
+                )
+            )
+            switches_relea.append(
+                autoshift_press_user_switch_tpl.format(
+                    layer=m.name, cases="\n".join(cases)
+                )
+            )
+
+        guard = "\n".join(
+            autoshift_guard.format(layer=l.name) for l in mode_without_autoshift
+        )
+        self.custom_autoshift = """
+        {press}
+        {relea}
+        """.format(
+            press=autoshift_press_user_tpl.format(
+                guard=guard, switch="\n".join(switches_press)
+            ),
+            relea=autoshift_release_user_tpl.format(
+                guard=guard, switch="\n".join(switches_relea)
+            ),
+        )
 
     def _alias(self, name, value: KeyCode):
         if not isinstance(value, KeyCode):
@@ -627,6 +781,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {{
             self._gen(m)
         self._gen_override()
         self._gen_custom_keys()
+        self._gen_custom_autoshift()
 
         return self.file_tpl.format(
             custom_keycodes=",\n".join(self.custom_keycodes),
@@ -640,6 +795,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {{
                 f"[{m.name}] = LAYOUT({self.keymaps.format(m)})" for m in Mode
             ),
             custom_process=self.custom_process,
+            custom_autoshift=self.custom_autoshift,
         )
 
 
@@ -656,12 +812,21 @@ fmt_layer = """
 
 
 base = """
-        KC_ESC ,  EKC_1 ,  EKC_2 ,  EKC_3 ,  EKC_4 ,  EKC_5 , LT(Fn|KC_ESC),    LT(Fn|KC_ESC),  EKC_6 ,  EKC_7,   EKC_8 ,  EKC_9 ,  EKC_0 , QK_BOOT,
-        KC_TAB ,  EKC_Q ,  EKC_C ,  EKC_O ,  EKC_P ,  EKC_W , KC_DEL ,           KC_BSPC,  EKC_J ,  EKC_M ,  EKC_D , EKC_DK ,  EKC_Y , _______,
-        KC_GRV ,  EKC_A ,  EKC_S ,  EKC_E ,  EKC_N ,  EKC_F , _______,           _______,  EKC_L ,  EKC_R ,  EKC_T ,  EKC_I ,  LT(Media|EKC_U), _______,
-        KC_LSFT,  EKC_Z ,  EKC_X , EKC_MNS,  EKC_V ,  EKC_B ,                             EKC_DOT,  EKC_H ,  EKC_G ,EKC_COMM,  EKC_K , KC_RSFT,
-        KC_LCTL, _______, KC_LEFT,KC_RIGHT, KC_LGUI,         _______,            _______,           KC_UP , KC_DOWN, _______, _______, _______,
-                                            MO(Sym), _______, _______,            _______, KC_ENTER, EKC_SPC
+        KC_ESC ,  EKC_1 ,  EKC_2 ,  EKC_3 ,  EKC_4 ,  EKC_5 , LT(Fn|KC_ESC),                               LT(Fn|KC_ESC),  EKC_6 ,  EKC_7,   EKC_8 ,  EKC_9 ,  EKC_0 , KC_INS,
+        KC_TAB ,  EKC_Q ,  EKC_C ,  EKC_O ,  EKC_P ,  EKC_W , KC_DEL ,                                     KC_BSPC,  EKC_J ,  EKC_M ,  EKC_D , EKC_DK ,  EKC_Y , _______,
+        KC_GRV ,  EKC_A ,  EKC_S ,  EKC_E ,  EKC_N ,  EKC_F , _______,                                     _______,  EKC_L ,  EKC_R ,  EKC_T ,  EKC_I ,  LT(Media|EKC_U), _______,
+        KC_LSFT,  EKC_Z ,  EKC_X , EKC_MNS,  EKC_V ,  EKC_B ,                                                             EKC_DOT,  EKC_H ,  EKC_G ,EKC_COMM,  EKC_K , KC_RSFT,
+        KC_LCTL, _______, KC_LEFT,KC_RIGHT, KC_LGUI,          LGUI(KC_P),            LGUI(LSFT(KC_SPACE)),                          KC_UP , KC_DOWN, _______, _______, CKC_LMOVE_Qwerty,
+                                            MO(Sym), _______, LGUI(KC_R),            KC_LALT, KC_ENTER, EKC_SPC
+"""
+
+qwerty = """
+        KC_ESC ,   KC_1 ,   KC_2 ,   KC_3 ,   KC_4 ,   KC_5 ,   LT(Fn|KC_ESC),     LT(Fn|KC_ESC),  KC_6 ,  KC_7 ,  KC_8 ,  KC_9, KC_0 , KC_INS,
+        KC_TAB ,   KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_DEL,           KC_BSPC,         KC_Y,   KC_U,   KC_I,   KC_O, KC_P, KC_BSLS,
+        KC_GRV,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_EQL,           KC_MINS,         KC_H,   KC_J,   KC_K,   KC_L, LT(Media|KC_SCLN), KC_QUOT,
+        KC_LSFT,   KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                                       KC_N,   KC_M,   KC_COMM,KC_DOT, KC_SLSH, KC_RSFT,
+        KC_LCTL, _______,   KC_LEFT, KC_RIGHT, KC_LGUI,         LGUI(KC_P),     LGUI(LSFT(KC_SPC)),KC_UP,  KC_DOWN, KC_LBRC, KC_RBRC, CKC_LMOVE_Base,
+                                               _______, _______,LGUI(KC_R),     KC_LALT, KC_ENTER, KC_SPC
 """
 
 media = """
@@ -675,15 +840,17 @@ media = """
 
 fn = """
         KC_F1 ,  KC_F2 ,  KC_F3 ,  KC_F4 ,  KC_F5 ,  KC_F6 ,  _______,           _______,  KC_F7 ,  KC_F8 ,  KC_F9 ,  KC_F10, KC_F11 , KC_F12 ,
-        _______, _______, _______, _______, _______, _______, _______,           _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, RGB_VAI, _______, _______, _______, _______,           _______, AC_TOGG, _______, _______, _______, _______, _______,
-        _______, _______, RGB_VAD, _______, _______, _______,                    _______, _______, _______, _______, _______, _______,
+        _______, _______, RGB_VAI, _______, _______, _______, _______,           _______, _______, _______, _______, _______, _______, _______,
+        _______, AC_TOGG, RGB_VAD, _______, _______, _______, _______,           _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, AS_TOGG, _______, _______,                    _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______,         _______,     _______,       _______, _______, _______, _______, _______,
                                            _______, _______, _______,     _______, _______, _______
 """
 
+
 km = Keymaps(fmt_layer=fmt_layer, nb_keys=72)
 km.set_base(base)
+km.add_layer(Mode.Qwerty, qwerty)
 km.add_layer(Mode.Media, media)
 km.add_layer(Mode.Fn, fn)
 

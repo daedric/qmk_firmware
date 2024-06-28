@@ -9,7 +9,7 @@ KEY_OVERRIDE_ENABLE = yes
 MUSIC_ENABLE = no
 AUDIO_ENABLE = no
 # do not work with the dead key and overrides/UM()
-AUTO_SHIFT_ENABLE = no
+AUTO_SHIFT_ENABLE = yes
 OS_DETECTION_ENABLE = yes
 AUTOCORRECT_ENABLE = yes
 

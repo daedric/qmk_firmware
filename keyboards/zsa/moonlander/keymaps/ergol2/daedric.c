@@ -79,9 +79,9 @@ const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
      [Fn] = {LED_LAYOUT(
         // clang-format off
         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
-        BLACK, BLACK, WHITE, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
-        BLACK, RED  , WHITE, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
-        BLACK, BLACK, BLACK, RED  , BLACK, BLACK,                         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, RED  , BLACK, BLACK, BLACK, WHITE,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, RED  , BLACK, BLACK, BLACK, WHITE,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,                         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
         BLACK, BLACK, BLACK, BLACK, BLACK,         BLACK,     BLACK,             BLACK, BLACK, BLACK, BLACK, BLACK,
                                     BLACK, BLACK, BLACK,      BLACK, BLACK, BLACK
         // clang-format on
@@ -108,11 +108,11 @@ void set_layer_color(int layer) {
     if (IS_LAYER_ON(Fn)) {
         RGB   rgb = autocorrect_is_enabled() ? hsv_to_rgb((HSV)DEPAREN(GREEN)) : hsv_to_rgb((HSV)DEPAREN(RED));
         float f   = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
-        rgb_matrix_set_color(7, f * rgb.r, f * rgb.g, f * rgb.b);
+        rgb_matrix_set_color(11, f * rgb.r, f * rgb.g, f * rgb.b);
 
         rgb = get_autoshift_state() ? hsv_to_rgb((HSV)DEPAREN(GREEN)) : hsv_to_rgb((HSV)DEPAREN(RED));
         f   = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
-        rgb_matrix_set_color(18, f * rgb.r, f * rgb.g, f * rgb.b);
+        rgb_matrix_set_color(12, f * rgb.r, f * rgb.g, f * rgb.b);
     }
 }
 

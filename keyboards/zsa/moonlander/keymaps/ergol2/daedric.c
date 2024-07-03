@@ -6,6 +6,7 @@
 #include "config.h"
 
 static void set_led_for_input_mode(uint8_t input_mode);
+static void init_led_for_input_mode(void);
 
 void keyboard_post_init_user(void) {
     /* debug_enable = true; */
@@ -13,6 +14,10 @@ void keyboard_post_init_user(void) {
     /* debug_keyboard = true; */
     // debug_mouse=true;
 
+    init_led_for_input_mode();
+}
+
+static void init_led_for_input_mode(void) {
     uint8_t mode;
     switch (detected_host_os()) {
         case OS_UNSURE:
@@ -196,9 +201,18 @@ void housekeeping_task_user(void) {
 }
 
 void suspend_power_down_user(void) {
-    // code will run multiple times while keyboard is suspended
+    for (int i = 0; i < 10; i++) {
+        ML_LED_1(false);
+        ML_LED_2(false);
+        ML_LED_3(false);
+        ML_LED_4(false);
+        ML_LED_5(false);
+        ML_LED_6(false);
+        wait_ms(25);
+    }
 }
 
 void suspend_wakeup_init_user(void) {
-    // code will run on keyboard wakeup
+    init_led_for_input_mode();
+    rgb_matrix_indicators_user();
 }

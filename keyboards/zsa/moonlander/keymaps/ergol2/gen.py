@@ -331,7 +331,7 @@ ergol_keys = {
         "EKC_DK": Key(base="OSL(DK)", shifted="KC_EXLM", dk_base=0x0308, dk_shifted=0x00A1, sym_base="FR_QUOT", sym_shifted=0x0301),
         "EKC_Y": Key(base="FR_Y", shifted=None, dk_base=0x00FB, dk_shifted=0x00DB, sym_base="FR_GRV", sym_shifted=0x0300),
 
-        "EKC_A": Key(base="FR_A", shifted=None, dk_base="FR_AGRV", dk_shifted=0x00C0, sym_base="FR_LCBR", sym_shifted=0x0306),
+        "EKC_A": Key(base="FR_A", shifted=None, dk_base="FR_AGRV", dk_shifted=0x00C0, sym_base="FR_LCBR", sym_shifted=0x030C),
         "EKC_S": Key(base="FR_S", shifted=None, dk_base="FR_EACU", dk_shifted=0x00C9, sym_base="FR_LPRN", sym_shifted="KC_TRNS"),
         "EKC_E": Key(base="FR_E", shifted=None, dk_base="FR_EGRV", dk_shifted=0x00C8, sym_base="FR_RPRN", sym_shifted="KC_TRNS"),
         "EKC_N": Key(base="FR_N", shifted=None, dk_base=0x00EA, dk_shifted=0x00CA, sym_base="FR_RCBR", sym_shifted=0x0307),
@@ -381,6 +381,8 @@ class Gen:
 
         #include "keycodes.h"
         #include "version.h"
+
+        {extra_include}
 
     enum layers {{
         {layers},
@@ -776,6 +778,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {{
             l.set_key(coord, final_kc)
 
     def gen(self):
+        extra_includes = []
+        if self.host == "fr":
+            extra_includes = ["keymap_french.h", "sendstring_french.h"]
+
         self._gen_unicode_map()
         for m in Mode:
             self._gen(m)
@@ -784,6 +790,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {{
         self._gen_custom_autoshift()
 
         return self.file_tpl.format(
+            extra_include="\n".join(map(lambda f: f'#include "{f}"', extra_includes)),
             custom_keycodes=",\n".join(self.custom_keycodes),
             layers=",\n".join(m.name for m in Mode),
             aliases="\n".join(

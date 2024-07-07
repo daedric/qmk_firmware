@@ -45,6 +45,7 @@ static void init_led_for_input_mode(void) {
 #define GOLD HSV_C(0x24, 0xFF, 0xFF)
 #define WHITE HSV_C(0x0, 0x0, 0xFF)
 #define ORANG HSV_C(0x15, 0xFF, 0xFF)
+#define BLUE HSV_C(0xC8, 0xFF, 0xFF)
 
 enum layers { Base, Qwerty, DK, Sym, Media, Fn };
 
@@ -66,7 +67,7 @@ const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, RED  , BLACK,
         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,                         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
         BLACK, BLACK, BLACK, BLACK, BLACK,         BLACK,     BLACK,             BLACK, BLACK, BLACK, BLACK, BLACK,
-                                    PURPL, BLACK, BLACK,      BLACK, BLACK, BLACK
+                                    BLACK, BLACK, BLACK,      BLACK, BLACK, BLACK
         // clang-format on
         )},
       [DK] = {LED_LAYOUT_ALL(BLACK)},
@@ -77,15 +78,15 @@ const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,                         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
-        BLACK, BLACK, BLACK, BLACK, BLACK,         BLACK,     BLACK,             BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, RED  , RED  , BLACK,         BLACK,     BLACK,             BLUE , BLUE , BLACK, BLACK, BLACK,
                                     BLACK, BLACK, BLACK,      BLACK, BLACK, BLACK
         // clang-format on
         )},
      [Fn] = {LED_LAYOUT(
         // clang-format off
         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
-        BLACK, BLACK, RED  , BLACK, BLACK, BLACK, WHITE,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
-        BLACK, BLACK, RED  , BLACK, BLACK, BLACK, WHITE,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, WHITE,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+        BLACK, RED  , RED  , BLACK, BLACK, BLACK, WHITE,           BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,                         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
         BLACK, BLACK, BLACK, BLACK, BLACK,         BLACK,     BLACK,             BLACK, BLACK, BLACK, BLACK, BLACK,
                                     BLACK, BLACK, BLACK,      BLACK, BLACK, BLACK
@@ -113,7 +114,7 @@ void set_layer_color(int layer) {
     if (IS_LAYER_ON(Fn)) {
         RGB   rgb = autocorrect_is_enabled() ? hsv_to_rgb((HSV)DEPAREN(GREEN)) : hsv_to_rgb((HSV)DEPAREN(RED));
         float f   = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
-        rgb_matrix_set_color(11, f * rgb.r, f * rgb.g, f * rgb.b);
+        rgb_matrix_set_color(7, f * rgb.r, f * rgb.g, f * rgb.b);
 
         rgb = get_autoshift_state() ? hsv_to_rgb((HSV)DEPAREN(GREEN)) : hsv_to_rgb((HSV)DEPAREN(RED));
         f   = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
